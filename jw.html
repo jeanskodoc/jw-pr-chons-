@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prêchons - Application de Suivi des Prédications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .jw-logo {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 3.2rem;
+            color: #ffffff;
+            background-color: #d4a017;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .jw-logo::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid rgba(212, 160, 23, 0.4);
+            border-radius: 50%;
+        }
+        
+        .jw-logo span {
+            font-size: 2.5rem;
+            letter-spacing: -2px;
+        }
+        
+        .tabs-container {
+            display: flex;
+            background-color: #f1f5f9;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 18px 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            color: #64748b;
+            white-space: nowrap;
+            min-width: 140px;
+        }
+        
+        .tab:hover {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+        
+        .tab.active {
+            background-color: white;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .label-jw-icon {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            color: #d4a017;
+            background-color: #fef9e7;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid #f9e79f;
+            font-size: 0.9em;
+            letter-spacing: -0.5px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .gps-coordinates {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .gps-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+        
+        .gps-status.active {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .gps-status.inactive {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+            transform: translateY(-2px);
+        }
+        
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .btn-whatsapp:hover {
+            background-color: #1da851;
+            transform: translateY(-2px);
+        }
+        
+        .btn-import {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-import:hover {
+            background-color: #d68910;
+            transform: translateY(-2px);
+        }
+        
+        .btn-export {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+        }
+        
+        .btn-search {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-search:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .btn-gps {
+            background-color: #2c3e50;
+            color: white;
+        }
+        
+        .btn-gps:hover {
+            background-color: #1a252f;
+            transform: translateY(-2px);
+        }
+        
+        .btn i {
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .jw-decoration {
+            position: absolute;
+            opacity: 0.15;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 4rem;
+            color: white;
+        }
+        
+        .jw-decoration.left {
+            top: 20px;
+            left: 30px;
+        }
+        
+        .jw-decoration.right {
+            bottom: 20px;
+            right: 30px;
+        }
+        
+        .list-content {
+            padding: 20px;
+        }
+        
+        .list-item {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            transition: transform 0.2s;
+        }
+        
+        .list-item:hover {
+            transform: translateX(5px);
+            background-color: #f1f5f9;
+        }
+        
+        .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .list-date {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .list-location {
+            color: #64748b;
+        }
+        
+        .list-group {
+            display: inline-block;
+            background-color: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .empty-list {
+            text-align: center;
+            padding: 50px 20px;
+            color: #94a3b8;
+        }
+        
+        .empty-list i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+        
+        /* Styles pour le cahier d'activité */
+        .activity-form {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .activity-form h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .activity-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #9b59b6;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .activity-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
+        
+        .activity-person {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .activity-date {
+            color: #64748b;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+        
+        .activity-theme {
+            color: #2c3e50;
+            margin: 8px 0;
+            font-weight: 600;
+        }
+        
+        .activity-verse {
+            color: #27ae60;
+            margin: 8px 0;
+            font-style: italic;
+        }
+        
+        .activity-suspended {
+            color: #e74c3c;
+            margin: 8px 0;
+            font-weight: 600;
+        }
+        
+        .activity-next-visit {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+            color: #3498db;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-completed {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+        
+        .activity-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .activity-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-edit {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        /* Styles pour l'éditeur enrichi */
+        .rich-editor-container {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .rich-editor-toolbar {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .rich-editor-toolbar button {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .rich-editor-toolbar button:hover {
+            background-color: #f1f5f9;
+            border-color: #3498db;
+        }
+        
+        .rich-editor-toolbar button.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .rich-editor-content {
+            min-height: 150px;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            outline: none;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .rich-editor-content:empty:before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+        }
+        
+        .rich-editor-content h1, .rich-editor-content h2, .rich-editor-content h3 {
+            margin: 10px 0;
+            color: #2c3e50;
+        }
+        
+        .rich-editor-content ul, .rich-editor-content ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .rich-editor-content blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin: 10px 0;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .search-section {
+            background-color: #fef3c7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #fbbf24;
+        }
+        
+        .search-section h4 {
+            color: #d97706;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-input-group input {
+            flex: 1;
+        }
+        
+        .search-input-group button {
+            padding: 12px 20px;
+            white-space: nowrap;
+        }
+        
+        .predefined-searches {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .predefined-searches button {
+            background-color: white;
+            border: 1px solid #fbbf24;
+            color: #d97706;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .predefined-searches button:hover {
+            background-color: #fef3c7;
+            border-color: #d97706;
+        }
+        
+        /* Section GPS pour le cahier d'activité */
+        .gps-section {
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #3498db;
+        }
+        
+        .gps-section h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .gps-info {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: monospace;
+            border: 1px solid #ddd;
+        }
+        
+        .gps-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .gps-buttons button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        
+        .address-info {
+            background-color: #f0f9ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #bae6fd;
+            display: none;
+        }
+        
+        .address-info.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .address-line {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .coordinates-display {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .coordinate-item {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            flex: 1;
+        }
+        
+        /* Styles pour l'icône JW dans les statistiques */
+        .jw-stat-icon {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 2.2rem;
+            color: #ffffff;
+            background-color: #d4a017;
+            width: 70px;
+            height: 70px;
+            line-height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+        
+        .jw-stat-icon span {
+            font-size: 1.8rem;
+            letter-spacing: -1px;
+        }
+        
+        /* Styles pour l'icône JW dans le formulaire RDV */
+        .jw-form-icon {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            color: #d4a017;
+            background-color: #fef9e7;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #f9e79f;
+            font-size: 0.95em;
+            letter-spacing: -0.5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+        
+        .text-area-with-jw {
+            position: relative;
+        }
+        
+        .jw-textarea-label {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background-color: white;
+            padding: 0 8px;
+            font-size: 0.9rem;
+            color: #d4a017;
+            font-weight: 600;
+            z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .jw-decoration {
+                display: none;
+            }
+            
+            .jw-logo {
+                width: 70px;
+                height: 70px;
+                line-height: 70px;
+                font-size: 2.8rem;
+            }
+            
+            .jw-logo span {
+                font-size: 2.2rem;
+            }
+            
+            .tabs-container {
+                flex-direction: column;
+            }
+            
+            .tab {
+                padding: 15px;
+                min-width: auto;
+            }
+            
+            .activity-item-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .activity-next-visit {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .search-input-group {
+                flex-direction: column;
+            }
+            
+            .search-input-group button {
+                width: 100%;
+            }
+            
+            .rich-editor-toolbar {
+                justify-content: center;
+            }
+            
+            .gps-buttons {
+                flex-direction: column;
+            }
+            
+            .coordinates-display {
+                flex-direction: column;
+            }
+            
+            .jw-stat-icon {
+                width: 60px;
+                height: 60px;
+                line-height: 60px;
+                font-size: 1.8rem;
+            }
+            
+            .jw-stat-icon span {
+                font-size: 1.5rem;
+            }
+            
+            .jw-form-icon {
+                padding: 4px 8px;
+                font-size: 0.85em;
+                min-width: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="jw-decoration left">JW</div>
+            <div class="jw-decoration right">JW</div>
+            
+            <div class="jw-logo">
+                <span>JW</span>
+            </div>
+            <h1>Prêchons</h1>
+            <p class="subtitle">Application de suivi des activités de prédication</p>
+        </header>
+        
+        <div class="tabs-container">
+            <div class="tab active" data-tab="rdv">
+                <i class="fas fa-calendar-check"></i> RDV
+            </div>
+            <div class="tab" data-tab="cahier">
+                <i class="fas fa-book"></i> Cahier d'activité
+            </div>
+            <div class="tab" data-tab="liste">
+                <i class="fas fa-list"></i> Liste
+            </div>
+            <div class="tab" data-tab="statistiques">
+                <i class="fas fa-chart-bar"></i> Statistiques
+            </div>
+        </div>
+        
+        <!-- Onglet RDV -->
+        <div id="rdv-tab" class="tab-content active">
+            <form id="preachingForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="date">
+                            <i class="fas fa-calendar-alt"></i> Date de prédication
+                        </label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">
+                            <i class="fas fa-map-marker-alt"></i> Lieu de prédication
+                        </label>
+                        <input type="text" id="location" name="location" placeholder="Entrez le lieu de prédication" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="group">
+                            <i class="fas fa-users"></i> Groupe de prédication
+                        </label>
+                        <select id="group" name="group" required>
+                            <option value="">Sélectionnez un groupe</option>
+                            <option value="Groupe 1">Groupe 1</option>
+                            <option value="Groupe 2">Groupe 2</option>
+                            <option value="Groupe 3">Groupe 3</option>
+                            <option value="Groupe 4">Groupe 4</option>
+                            <option value="Groupe 5">Groupe 5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="neighborhood">
+                            <i class="fas fa-city"></i> Quartier
+                        </label>
+                        <input type="text" id="neighborhood" name="neighborhood" placeholder="Entrez le quartier" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preaching">
+                            <span class="jw-form-icon">JW</span> Prédication / Notes
+                        </label>
+                        <textarea id="preaching" name="preaching" rows="5" placeholder="Notes de prédication, sujets abordés, observations..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-map-pin"></i> Coordonnées GPS (automatiques)</label>
+                        <div class="gps-coordinates">
+                            <div>
+                                <span id="latitude">Latitude: En attente de localisation...</span>
+                                <span id="longitude">Longitude: En attente de localisation...</span>
+                            </div>
+                            <div>
+                                <span id="gpsStatus" class="gps-status inactive">GPS non activé</span>
+                            </div>
+                        </div>
+                        <button type="button" id="getLocationBtn" class="btn btn-primary" style="margin-top: 10px; padding: 10px 15px;">
+                            <i class="fas fa-satellite"></i> Obtenir la localisation
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" id="importBtn" class="btn btn-import">
+                        <i class="fas fa-file-import"></i> Importer JSON
+                    </button>
+                    
+                    <button type="button" id="exportBtn" class="btn btn-export">
+                        <i class="fas fa-file-export"></i> Exporter JSON
+                    </button>
+                    
+                    <button type="button" id="whatsappBtn" class="btn btn-whatsapp">
+                        <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
+                    </button>
+                    
+                    <button type="submit" id="saveBtn" class="btn btn-success">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Onglet Cahier d'activité -->
+        <div id="cahier-tab" class="tab-content">
+            <div class="activity-form">
+                <h3><i class="fas fa-plus-circle"></i> Nouvelle entrée dans le cahier d'activité</h3>
+                <form id="activityForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="personName"><i class="fas fa-user"></i> Nom de la prochaine étude</label>
+                            <input type="text" id="personName" name="personName" placeholder="Nom de la personne ou famille" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="theme"><i class="fas fa-book-open"></i> Thème abordé</label>
+                            <input type="text" id="theme" name="theme" placeholder="Sujet principal abordé" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="verse"><i class="fas fa-bible"></i> Verset ou publication présenté</label>
+                            <input type="text" id="verse" name="verse" placeholder="Ex: Jean 3:16 ou 'La Tour de Garde Janvier 2024'">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="suspendedTheme"><i class="fas fa-pause-circle"></i> Thème en suspens</label>
+                            <input type="text" id="suspendedTheme" name="suspendedTheme" placeholder="Sujet à reprendre lors de la prochaine visite">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nextVisitDate"><i class="fas fa-calendar-day"></i> Date de la prochaine visite</label>
+                            <input type="date" id="nextVisitDate" name="nextVisitDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nextVisitTime"><i class="fas fa-clock"></i> Heure de la visite</label>
+                            <input type="time" id="nextVisitTime" name="nextVisitTime" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Section GPS pour le cahier d'activité -->
+                    <div class="gps-section">
+                        <h4><i class="fas fa-map-marked-alt"></i> Localisation GPS de l'étude</h4>
+                        <div class="gps-info" id="activityGpsInfo">
+                            <p>Cliquez sur "Obtenir la localisation" pour capturer les coordonnées GPS actuelles.</p>
+                        </div>
+                        
+                        <div class="gps-buttons">
+                            <button type="button" id="getActivityLocationBtn" class="btn-gps">
+                                <i class="fas fa-satellite"></i> Obtenir la localisation
+                            </button>
+                            <button type="button" id="insertGpsBtn" class="btn-primary">
+                                <i class="fas fa-map-pin"></i> Insérer dans les notes
+                            </button>
+                            <button type="button" id="getAddressBtn" class="btn-success">
+                                <i class="fas fa-home"></i> Obtenir l'adresse
+                            </button>
+                        </div>
+                        
+                        <div class="address-info" id="addressInfo">
+                            <h5><i class="fas fa-address-card"></i> Adresse détectée :</h5>
+                            <div id="addressDetails">
+                                <!-- L'adresse sera affichée ici -->
+                            </div>
+                            <div class="coordinates-display">
+                                <div class="coordinate-item">
+                                    <strong>Latitude:</strong> <span id="activityLatitude">Non disponible</span>
+                                </div>
+                                <div class="coordinate-item">
+                                    <strong>Longitude:</strong> <span id="activityLongitude">Non disponible</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section de recherche intelligente -->
+                    <div class="search-section">
+                        <h4><i class="fas fa-search"></i> Recherche intelligente vers JW</h4>
+                        <div class="search-input-group">
+                            <input type="text" id="searchQuery" placeholder="Rechercher un verset, un thème ou une publication...">
+                            <button type="button" id="searchBtn" class="btn btn-search">
+                                <i class="fas fa-external-link-alt"></i> Rechercher
+                            </button>
+                        </div>
+                        <div class="predefined-searches">
+                            <button type="button" class="predefined-search" data-query="Jean 3:16">Jean 3:16</button>
+                            <button type="button" class="predefined-search" data-query="Psaume 83:18">Psaume 83:18</button>
+                            <button type="button" class="predefined-search" data-query="Résurrection">Résurrection</button>
+                            <button type="button" class="predefined-search" data-query="Royaume de Dieu">Royaume de Dieu</button>
+                            <button type="button" class="predefined-search" data-query="Amour de Dieu">Amour de Dieu</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-sticky-note"></i> Notes supplémentaires (éditeur enrichi)</label>
+                            <div class="rich-editor-container">
+                                <div class="rich-editor-toolbar">
+                                    <button type="button" data-command="bold" title="Gras">
+                                        <i class="fas fa-bold"></i>
+                                    </button>
+                                    <button type="button" data-command="italic" title="Italique">
+                                        <i class="fas fa-italic"></i>
+                                    </button>
+                                    <button type="button" data-command="underline" title="Souligné">
+                                        <i class="fas fa-underline"></i>
+                                    </button>
+                                    <button type="button" data-command="insertUnorderedList" title="Liste à puces">
+                                        <i class="fas fa-list-ul"></i>
+                                    </button>
+                                    <button type="button" data-command="insertOrderedList" title="Liste numérotée">
+                                        <i class="fas fa-list-ol"></i>
+                                    </button>
+                                    <button type="button" data-command="createLink" title="Lien">
+                                        <i class="fas fa-link"></i>
+                                    </button>
+                                    <button type="button" data-command="formatBlock" data-value="h2" title="Titre">
+                                        <i class="fas fa-heading"></i>
+                                    </button>
+                                    <button type="button" data-command="formatBlock" data-value="blockquote" title="Citation">
+                                        <i class="fas fa-quote-right"></i>
+                                    </button>
+                                    <button type="button" id="clearFormatting" title="Effacer le formatage">
+                                        <i class="fas fa-eraser"></i>
+                                    </button>
+                                </div>
+                                <div class="rich-editor-content" id="richNotes" data-placeholder="Observations, points à approfondir, questions posées..." contenteditable="true"></div>
+                            </div>
+                            <input type="hidden" id="notes" name="notes">
+                            <input type="hidden" id="activityLatitudeInput" name="activityLatitude">
+                            <input type="hidden" id="activityLongitudeInput" name="activityLongitude">
+                            <input type="hidden" id="activityAddress" name="activityAddress">
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="submit" id="saveActivityBtn" class="btn btn-success">
+                            <i class="fas fa-save"></i> Ajouter au cahier
+                        </button>
+                        
+                        <button type="button" id="clearActivityForm" class="btn btn-primary">
+                            <i class="fas fa-eraser"></i> Effacer le formulaire
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <h3 style="margin-bottom: 20px; color: #2c3e50;">
+                <i class="fas fa-book"></i> Entrées du cahier d'activité
+            </h3>
+            
+            <div id="activityList">
+                <!-- Les activités seront ajoutées ici dynamiquement -->
+                <div class="empty-list">
+                    <i class="fas fa-book-open"></i>
+                    <h3>Cahier d'activité vide</h3>
+                    <p>Ajoutez votre première entrée pour commencer à suivre vos activités</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Onglet Liste -->
+        <div id="liste-tab" class="tab-content">
+            <div class="list-content">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">Liste des prédications</h2>
+                <div id="preachingList">
+                    <!-- Les prédications seront ajoutées ici dynamiquement -->
+                    <div class="empty-list">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>Aucune prédication enregistrée</h3>
+                        <p>Ajoutez votre première prédication dans l'onglet "RDV"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Onglet Statistiques -->
+        <div id="statistiques-tab" class="tab-content">
+            <div class="list-content">
+                <h2 style="margin-bottom: 20px; color: #2c3e50;">Statistiques</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #d4a017;">
+                            <div class="jw-stat-icon">
+                                <span>JW</span>
+                            </div>
+                        </div>
+                        <h3 style="color: #2c3e50;">Total des prédications</h3>
+                        <div id="totalPreachings" class="stat-value">0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #27ae60;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 style="color: #2c3e50;">Groupes actifs</h3>
+                        <div id="activeGroups" class="stat-value">0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #9b59b6;">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3 style="color: #2c3e50;">Lieux différents</h3>
+                        <div id="differentLocations" class="stat-value">0</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: #e74c3c;">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3 style="color: #2c3e50;">Études suivies</h3>
+                        <div id="totalActivities" class="stat-value">0</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 40px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">Répartition par groupe</h3>
+                    <div id="groupDistribution" style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <p style="color: #64748b; text-align: center;">Aucune donnée disponible</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Application "Prêchons" - Suivi des activités de prédication</p>
+            <p>Numéro WhatsApp du groupe : <strong>92871605</strong></p>
+            <p>Recherche intelligente via : <strong>https://www.ia-elian.com/</strong></p>
+        </footer>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <!-- Input caché pour l'import de fichier -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+    
+    <!-- Modal pour les liens -->
+    <div id="linkModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background-color: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px;">
+            <h3 style="margin-bottom: 20px; color: #2c3e50;">
+                <i class="fas fa-link"></i> Insérer un lien
+            </h3>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">URL du lien</label>
+                <input type="text" id="linkUrl" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" placeholder="https://exemple.com">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="cancelLink" style="padding: 10px 20px; background-color: #e2e8f0; border: none; border-radius: 4px; cursor: pointer;">
+                    Annuler
+                </button>
+                <button id="insertLink" style="padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Insérer
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Éléments du DOM
+        const form = document.getElementById('preachingForm');
+        const activityForm = document.getElementById('activityForm');
+        const latitudeElement = document.getElementById('latitude');
+        const longitudeElement = document.getElementById('longitude');
+        const gpsStatusElement = document.getElementById('gpsStatus');
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const getActivityLocationBtn = document.getElementById('getActivityLocationBtn');
+        const insertGpsBtn = document.getElementById('insertGpsBtn');
+        const getAddressBtn = document.getElementById('getAddressBtn');
+        const importBtn = document.getElementById('importBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchQuery = document.getElementById('searchQuery');
+        const fileInput = document.getElementById('fileInput');
+        const notification = document.getElementById('notification');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const preachingList = document.getElementById('preachingList');
+        const activityList = document.getElementById('activityList');
+        const clearActivityFormBtn = document.getElementById('clearActivityForm');
+        const richNotes = document.getElementById('richNotes');
+        const notesHiddenInput = document.getElementById('notes');
+        const activityGpsInfo = document.getElementById('activityGpsInfo');
+        const activityLatitudeElement = document.getElementById('activityLatitude');
+        const activityLongitudeElement = document.getElementById('activityLongitude');
+        const activityLatitudeInput = document.getElementById('activityLatitudeInput');
+        const activityLongitudeInput = document.getElementById('activityLongitudeInput');
+        const activityAddressInput = document.getElementById('activityAddress');
+        const addressInfo = document.getElementById('addressInfo');
+        const addressDetails = document.getElementById('addressDetails');
+        const toolbarButtons = document.querySelectorAll('.rich-editor-toolbar button');
+        const clearFormattingBtn = document.getElementById('clearFormatting');
+        const linkModal = document.getElementById('linkModal');
+        const linkUrl = document.getElementById('linkUrl');
+        const cancelLink = document.getElementById('cancelLink');
+        const insertLink = document.getElementById('insertLink');
+        const predefinedSearchButtons = document.querySelectorAll('.predefined-search');
+        
+        // Variables pour stocker les données
+        let userLatitude = null;
+        let userLongitude = null;
+        let activityLatitude = null;
+        let activityLongitude = null;
+        let activityAddress = null;
+        let preachings = JSON.parse(localStorage.getItem('preachings')) || [];
+        let activities = JSON.parse(localStorage.getItem('activities')) || [];
+        let currentLinkCommand = null;
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePreachingList();
+            updateActivityList();
+            updateStatistics();
+            
+            // Définir les dates par défaut
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            document.getElementById('nextVisitDate').value = today;
+            
+            // Définir l'heure par défaut (dans 1 semaine à 10h)
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            const nextWeekFormatted = nextWeek.toISOString().split('T')[0];
+            document.getElementById('nextVisitDate').value = nextWeekFormatted;
+            document.getElementById('nextVisitTime').value = '10:00';
+            
+            // Initialiser l'éditeur enrichi
+            initRichEditor();
+            
+            // Focus sur la recherche quand on ouvre l'onglet cahier
+            const cahierTab = document.querySelector('.tab[data-tab="cahier"]');
+            cahierTab.addEventListener('click', function() {
+                setTimeout(() => {
+                    searchQuery.focus();
+                }, 300);
+            });
+        });
+        
+        // Gestion des onglets
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Désactiver tous les onglets
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Activer l'onglet sélectionné
+                tab.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Fonction pour initialiser l'éditeur enrichi
+        function initRichEditor() {
+            // Gérer les boutons de la toolbar
+            toolbarButtons.forEach(button => {
+                if (button.dataset.command !== 'createLink') {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const command = this.dataset.command;
+                        const value = this.dataset.value;
+                        
+                        if (command === 'formatBlock') {
+                            document.execCommand(command, false, value);
+                        } else {
+                            document.execCommand(command, false, null);
+                        }
+                        
+                        // Mettre à jour l'état des boutons
+                        updateToolbarButtons();
+                    });
+                }
+            });
+            
+            // Bouton pour effacer le formatage
+            clearFormattingBtn.addEventListener('click', function() {
+                document.execCommand('removeFormat', false, null);
+                document.execCommand('unlink', false, null);
+                updateToolbarButtons();
+            });
+            
+            // Gérer le bouton de lien
+            document.querySelector('[data-command="createLink"]').addEventListener('click', function(e) {
+                e.preventDefault();
+                currentLinkCommand = 'createLink';
+                linkModal.style.display = 'flex';
+                linkUrl.value = '';
+                linkUrl.focus();
+            });
+            
+            // Gérer la modal de lien
+            cancelLink.addEventListener('click', function() {
+                linkModal.style.display = 'none';
+                currentLinkCommand = null;
+            });
+            
+            insertLink.addEventListener('click', function() {
+                if (linkUrl.value.trim()) {
+                    if (currentLinkCommand === 'createLink') {
+                        document.execCommand('createLink', false, linkUrl.value);
+                    }
+                    linkModal.style.display = 'none';
+                    currentLinkCommand = null;
+                    updateToolbarButtons();
+                }
+            });
+            
+            // Fermer la modal en cliquant à l'extérieur
+            linkModal.addEventListener('click', function(e) {
+                if (e.target === linkModal) {
+                    linkModal.style.display = 'none';
+                    currentLinkCommand = null;
+                }
+            });
+            
+            // Mettre à jour le champ caché lorsque le contenu change
+            richNotes.addEventListener('input', function() {
+                notesHiddenInput.value = this.innerHTML;
+            });
+            
+            // Mettre à jour l'état des boutons de la toolbar
+            richNotes.addEventListener('mouseup', updateToolbarButtons);
+            richNotes.addEventListener('keyup', updateToolbarButtons);
+        }
+        
+        // Fonction pour mettre à jour l'état des boutons de la toolbar
+        function updateToolbarButtons() {
+            toolbarButtons.forEach(button => {
+                const command = button.dataset.command;
+                const value = button.dataset.value;
+                
+                if (command === 'formatBlock') {
+                    // Vérifier si le format est appliqué
+                    const isActive = document.queryCommandValue('formatBlock') === value;
+                    button.classList.toggle('active', isActive);
+                } else if (command) {
+                    // Vérifier si la commande est active
+                    const isActive = document.queryCommandState(command);
+                    button.classList.toggle('active', isActive);
+                }
+            });
+        }
+        
+        // Recherche intelligente vers JW
+        searchBtn.addEventListener('click', function() {
+            performSearch();
+        });
+        
+        // Recherche avec la touche Entrée
+        searchQuery.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+        
+        // Recherches prédéfinies
+        predefinedSearchButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                searchQuery.value = this.dataset.query;
+                performSearch();
+            });
+        });
+        
+        function performSearch() {
+            const query = searchQuery.value.trim();
+            if (!query) {
+                showNotification("Veuillez entrer un terme de recherche", "warning");
+                return;
+            }
+            
+            // Construire l'URL de recherche
+            const searchUrl = `https://www.ia-elian.com/?q=${encodeURIComponent(query)}`;
+            
+            // Ouvrir dans un nouvel onglet
+            window.open(searchUrl, '_blank');
+            
+            // Ajouter le lien dans les notes
+            const timestamp = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const searchNote = `<p><strong>Recherche effectuée à ${timestamp}:</strong> <a href="${searchUrl}" target="_blank">${query}</a></p>`;
+            
+            // Ajouter aux notes existantes
+            const currentContent = richNotes.innerHTML;
+            richNotes.innerHTML = currentContent + (currentContent ? '<br>' : '') + searchNote;
+            notesHiddenInput.value = richNotes.innerHTML;
+            
+            showNotification(`Recherche lancée: "${query}"`, "success");
+        }
+        
+        // Fonction pour obtenir la localisation GPS pour le formulaire principal
+        function getLocation() {
+            if (navigator.geolocation) {
+                gpsStatusElement.textContent = "Localisation en cours...";
+                gpsStatusElement.className = "gps-status inactive";
+                
+                navigator.geolocation.getCurrentPosition(
+                    // Succès
+                    function(position) {
+                        userLatitude = position.coords.latitude;
+                        userLongitude = position.coords.longitude;
+                        
+                        latitudeElement.textContent = `Latitude: ${userLatitude.toFixed(6)}`;
+                        longitudeElement.textContent = `Longitude: ${userLongitude.toFixed(6)}`;
+                        
+                        gpsStatusElement.textContent = "Localisation active";
+                        gpsStatusElement.className = "gps-status active";
+                        
+                        showNotification("Localisation obtenue avec succès!", "success");
+                    },
+                    // Erreur
+                    function(error) {
+                        console.error("Erreur de géolocalisation:", error);
+                        gpsStatusElement.textContent = "Erreur de localisation";
+                        gpsStatusElement.className = "gps-status inactive";
+                        
+                        // Coordonnées par défaut (exemple)
+                        userLatitude = 6.1319;
+                        userLongitude = 1.2228;
+                        latitudeElement.textContent = `Latitude: ${userLatitude.toFixed(6)} (défaut)`;
+                        longitudeElement.textContent = `Longitude: ${userLongitude.toFixed(6)} (défaut)`;
+                        
+                        showNotification("Localisation par défaut utilisée. Activez le GPS pour une précision optimale.", "warning");
+                    },
+                    // Options
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                showNotification("La géolocalisation n'est pas supportée par votre navigateur.", "error");
+            }
+        }
+        
+        // Fonction pour obtenir la localisation GPS pour le cahier d'activité
+        function getActivityLocation() {
+            if (navigator.geolocation) {
+                activityGpsInfo.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Acquisition de la localisation en cours...</p>';
+                
+                navigator.geolocation.getCurrentPosition(
+                    // Succès
+                    function(position) {
+                        activityLatitude = position.coords.latitude;
+                        activityLongitude = position.coords.longitude;
+                        
+                        // Mettre à jour l'affichage
+                        activityLatitudeElement.textContent = activityLatitude.toFixed(6);
+                        activityLongitudeElement.textContent = activityLongitude.toFixed(6);
+                        
+                        // Mettre à jour les champs cachés
+                        activityLatitudeInput.value = activityLatitude;
+                        activityLongitudeInput.value = activityLongitude;
+                        
+                        // Mettre à jour l'affichage
+                        activityGpsInfo.innerHTML = `
+                            <p><i class="fas fa-check-circle" style="color: #27ae60;"></i> Localisation obtenue avec succès !</p>
+                            <div class="coordinates-display">
+                                <div class="coordinate-item">
+                                    <strong>Latitude:</strong> ${activityLatitude.toFixed(6)}
+                                </div>
+                                <div class="coordinate-item">
+                                    <strong>Longitude:</strong> ${activityLongitude.toFixed(6)}
+                                </div>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; color: #64748b;">
+                                <i class="fas fa-info-circle"></i> Cliquez sur "Insérer dans les notes" pour ajouter ces coordonnées à vos notes.
+                            </p>
+                        `;
+                        
+                        showNotification("Localisation pour l'étude obtenue avec succès!", "success");
+                    },
+                    // Erreur
+                    function(error) {
+                        console.error("Erreur de géolocalisation:", error);
+                        activityGpsInfo.innerHTML = `
+                            <p><i class="fas fa-exclamation-circle" style="color: #e74c3c;"></i> Erreur lors de l'acquisition de la localisation</p>
+                            <p style="font-size: 0.9em; color: #64748b;">
+                                Vérifiez que les services de localisation sont activés sur votre appareil.
+                            </p>
+                        `;
+                        
+                        // Coordonnées par défaut
+                        activityLatitude = 6.1319;
+                        activityLongitude = 1.2228;
+                        activityLatitudeElement.textContent = activityLatitude.toFixed(6) + " (défaut)";
+                        activityLongitudeElement.textContent = activityLongitude.toFixed(6) + " (défaut)";
+                        activityLatitudeInput.value = activityLatitude;
+                        activityLongitudeInput.value = activityLongitude;
+                        
+                        showNotification("Localisation par défaut utilisée pour l'étude.", "warning");
+                    },
+                    // Options
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                activityGpsInfo.innerHTML = '<p><i class="fas fa-exclamation-triangle" style="color: #f39c12;"></i> La géolocalisation n\'est pas supportée par votre navigateur.</p>';
+                showNotification("La géolocalisation n'est pas supportée par votre navigateur.", "error");
+            }
+        }
+        
+        // Fonction pour obtenir l'adresse à partir des coordonnées GPS
+        function getAddressFromCoordinates(lat, lng) {
+            if (!lat || !lng) {
+                showNotification("Veuillez d'abord obtenir la localisation GPS", "warning");
+                return;
+            }
+            
+            // Utiliser l'API de géocodage de Nominatim (OpenStreetMap)
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+            
+            addressInfo.classList.remove('show');
+            addressDetails.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Recherche de l\'adresse en cours...</p>';
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const address = data.address;
+                        let addressHtml = '';
+                        
+                        // Construire l'adresse de manière lisible
+                        if (address.road) addressHtml += `<div class="address-line"><i class="fas fa-road"></i> ${address.road}</div>`;
+                        if (address.house_number) addressHtml += `<div class="address-line"><i class="fas fa-home"></i> ${address.house_number}</div>`;
+                        if (address.suburb) addressHtml += `<div class="address-line"><i class="fas fa-map-marker"></i> ${address.suburb}</div>`;
+                        if (address.city || address.town || address.village) {
+                            addressHtml += `<div class="address-line"><i class="fas fa-city"></i> ${address.city || address.town || address.village}</div>`;
+                        }
+                        if (address.postcode) addressHtml += `<div class="address-line"><i class="fas fa-mail-bulk"></i> ${address.postcode}</div>`;
+                        if (address.country) addressHtml += `<div class="address-line"><i class="fas fa-globe"></i> ${address.country}</div>`;
+                        
+                        addressDetails.innerHTML = addressHtml;
+                        activityAddress = data.display_name;
+                        activityAddressInput.value = activityAddress;
+                        addressInfo.classList.add('show');
+                        
+                        showNotification("Adresse obtenue avec succès!", "success");
+                    } else {
+                        addressDetails.innerHTML = '<p><i class="fas fa-exclamation-circle"></i> Adresse non trouvée pour ces coordonnées</p>';
+                        addressInfo.classList.add('show');
+                        showNotification("Adresse non trouvée pour ces coordonnées", "warning");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération de l'adresse:", error);
+                    addressDetails.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> Erreur lors de la recherche de l'adresse</p>`;
+                    addressInfo.classList.add('show');
+                    showNotification("Erreur lors de la recherche de l'adresse", "error");
+                });
+        }
+        
+        // Fonction pour insérer les coordonnées GPS dans les notes
+        function insertGpsIntoNotes() {
+            if (!activityLatitude || !activityLongitude) {
+                showNotification("Veuillez d'abord obtenir la localisation GPS", "warning");
+                return;
+            }
+            
+            const timestamp = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const date = new Date().toLocaleDateString('fr-FR');
+            
+            let gpsNote = `<div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #3498db;">
+                <h4 style="margin-top: 0; color: #2c3e50;"><i class="fas fa-map-marked-alt"></i> Localisation de l'étude</h4>
+                <p><strong>Date:</strong> ${date} à ${timestamp}</p>
+                <p><strong>Coordonnées GPS:</strong> ${activityLatitude.toFixed(6)}, ${activityLongitude.toFixed(6)}</p>`;
+            
+            if (activityAddress) {
+                gpsNote += `<p><strong>Adresse:</strong> ${activityAddress}</p>`;
+            }
+            
+            gpsNote += `<p><a href="https://maps.google.com/?q=${activityLatitude},${activityLongitude}" target="_blank" style="color: #3498db;">
+                <i class="fas fa-external-link-alt"></i> Voir sur Google Maps
+            </a></p></div>`;
+            
+            // Ajouter aux notes existantes
+            const currentContent = richNotes.innerHTML;
+            richNotes.innerHTML = currentContent + (currentContent ? '<br>' : '') + gpsNote;
+            notesHiddenInput.value = richNotes.innerHTML;
+            
+            showNotification("Coordonnées GPS insérées dans les notes!", "success");
+        }
+        
+        // Obtenir la localisation au chargement de la page
+        window.addEventListener('load', getLocation);
+        
+        // Boutons GPS pour le cahier d'activité
+        getActivityLocationBtn.addEventListener('click', getActivityLocation);
+        insertGpsBtn.addEventListener('click', insertGpsIntoNotes);
+        getAddressBtn.addEventListener('click', function() {
+            getAddressFromCoordinates(activityLatitude, activityLongitude);
+        });
+        
+        // Bouton pour obtenir la localisation manuellement (formulaire principal)
+        getLocationBtn.addEventListener('click', getLocation);
+        
+        // Fonction pour afficher une notification
+        function showNotification(message, type = "info") {
+            notification.textContent = message;
+            
+            // Changer la couleur selon le type
+            if (type === "success") {
+                notification.style.backgroundColor = "#27ae60";
+            } else if (type === "error") {
+                notification.style.backgroundColor = "#e74c3c";
+            } else if (type === "warning") {
+                notification.style.backgroundColor = "#f39c12";
+            } else {
+                notification.style.backgroundColor = "#3498db";
+            }
+            
+            notification.style.display = "block";
+            
+            // Masquer après 5 secondes
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, 5000);
+        }
+        
+        // Fonction pour exporter les données au format JSON
+        exportBtn.addEventListener('click', function() {
+            if (preachings.length === 0) {
+                showNotification("Aucune donnée à exporter!", "warning");
+                return;
+            }
+            
+            // Convertir en JSON
+            const jsonData = JSON.stringify(preachings, null, 2);
+            
+            // Créer un blob et un lien de téléchargement
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Générer un nom de fichier avec la date
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `prechons_${dateStr}.json`;
+            
+            // Déclencher le téléchargement
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification("Fichier JSON exporté avec succès!", "success");
+        });
+        
+        // Fonction pour importer un fichier JSON
+        importBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Vérifier si c'est un tableau ou un objet unique
+                    if (Array.isArray(importedData)) {
+                        preachings = importedData;
+                    } else {
+                        // Si c'est un objet unique, l'ajouter au tableau
+                        preachings = [importedData];
+                    }
+                    
+                    // Sauvegarder dans le localStorage
+                    localStorage.setItem('preachings', JSON.stringify(preachings));
+                    
+                    // Mettre à jour l'affichage
+                    updatePreachingList();
+                    updateStatistics();
+                    
+                    showNotification("Fichier JSON importé avec succès!", "success");
+                } catch (error) {
+                    console.error("Erreur lors de l'import du JSON:", error);
+                    showNotification("Erreur: le fichier JSON est invalide.", "error");
+                }
+            };
+            
+            reader.readAsText(file);
+            
+            // Réinitialiser l'input file
+            event.target.value = '';
+        });
+        
+        // Fonction pour envoyer via WhatsApp
+        whatsappBtn.addEventListener('click', function() {
+            // Récupérer les données du formulaire
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Convertir FormData en objet
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Vérifier que les champs obligatoires sont remplis
+            if (!data.date || !data.location || !data.group || !data.neighborhood) {
+                showNotification("Veuillez remplir tous les champs obligatoires avant d'envoyer.", "warning");
+                return;
+            }
+            
+            // Créer le message WhatsApp
+            let message = `*NOUVELLE PRÉDICATION ENREGISTRÉE*\n\n`;
+            message += `📅 *Date:* ${data.date}\n`;
+            message += `📍 *Lieu:* ${data.location}\n`;
+            message += `👥 *Groupe:* ${data.group}\n`;
+            message += `🏘️ *Quartier:* ${data.neighborhood}\n`;
+            
+            if (data.preaching) {
+                message += `📖 *Prédication:* ${data.preaching}\n`;
+            }
+            
+            if (userLatitude && userLongitude) {
+                message += `🗺️ *Coordonnées GPS:* ${userLatitude.toFixed(6)}, ${userLongitude.toFixed(6)}\n`;
+                message += `https://maps.google.com/?q=${userLatitude},${userLongitude}`;
+            }
+            
+            message += `\n_Enregistré via l'application Prêchons_`;
+            
+            // Encoder le message pour l'URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Numéro WhatsApp (92871605)
+            const phoneNumber = "92871605";
+            
+            // Créer l'URL WhatsApp
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            // Ouvrir WhatsApp dans une nouvelle fenêtre
+            window.open(whatsappUrl, '_blank');
+            
+            showNotification("Préparation du message WhatsApp...", "success");
+        });
+        
+        // Gestion de la soumission du formulaire de prédication
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Récupérer les données du formulaire
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Convertir FormData en objet
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Ajouter les coordonnées GPS
+            data.latitude = userLatitude;
+            data.longitude = userLongitude;
+            data.timestamp = new Date().toISOString();
+            data.id = Date.now(); // ID unique
+            
+            // Ajouter à la liste des prédications
+            preachings.push(data);
+            
+            // Sauvegarder dans le localStorage
+            localStorage.setItem('preachings', JSON.stringify(preachings));
+            
+            // Mettre à jour l'affichage
+            updatePreachingList();
+            updateStatistics();
+            
+            showNotification("Prédication enregistrée avec succès!", "success");
+            
+            // Réinitialiser le formulaire
+            form.reset();
+            
+            // Réinitialiser la date à aujourd'hui
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+        });
+        
+        // Gestion de la soumission du formulaire d'activité
+        activityForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Récupérer les données du formulaire
+            const formData = new FormData(activityForm);
+            const data = {};
+            
+            // Convertir FormData en objet
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Ajouter le contenu HTML des notes
+            data.notes = notesHiddenInput.value;
+            
+            // Ajouter les coordonnées GPS si disponibles
+            if (activityLatitude && activityLongitude) {
+                data.latitude = activityLatitude;
+                data.longitude = activityLongitude;
+                data.address = activityAddressInput.value;
+            }
+            
+            // Ajouter des métadonnées
+            data.id = Date.now(); // ID unique
+            data.createdAt = new Date().toISOString();
+            data.status = 'pending'; // pending, completed
+            
+            // Ajouter à la liste des activités
+            activities.push(data);
+            
+            // Sauvegarder dans le localStorage
+            localStorage.setItem('activities', JSON.stringify(activities));
+            
+            // Mettre à jour l'affichage
+            updateActivityList();
+            updateStatistics();
+            
+            showNotification("Activité ajoutée au cahier avec succès!", "success");
+            
+            // Réinitialiser le formulaire
+            activityForm.reset();
+            richNotes.innerHTML = '';
+            notesHiddenInput.value = '';
+            activityGpsInfo.innerHTML = '<p>Cliquez sur "Obtenir la localisation" pour capturer les coordonnées GPS actuelles.</p>';
+            addressInfo.classList.remove('show');
+            activityLatitude = null;
+            activityLongitude = null;
+            activityAddress = null;
+            activityLatitudeInput.value = '';
+            activityLongitudeInput.value = '';
+            activityAddressInput.value = '';
+            
+            // Définir les valeurs par défaut
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('nextVisitDate').value = today;
+            document.getElementById('nextVisitTime').value = '10:00';
+        });
+        
+        // Bouton pour effacer le formulaire d'activité
+        clearActivityFormBtn.addEventListener('click', function() {
+            activityForm.reset();
+            richNotes.innerHTML = '';
+            notesHiddenInput.value = '';
+            activityGpsInfo.innerHTML = '<p>Cliquez sur "Obtenir la localisation" pour capturer les coordonnées GPS actuelles.</p>';
+            addressInfo.classList.remove('show');
+            activityLatitude = null;
+            activityLongitude = null;
+            activityAddress = null;
+            activityLatitudeInput.value = '';
+            activityLongitudeInput.value = '';
+            activityAddressInput.value = '';
+            
+            // Définir les valeurs par défaut
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            const nextWeekFormatted = nextWeek.toISOString().split('T')[0];
+            document.getElementById('nextVisitDate').value = nextWeekFormatted;
+            document.getElementById('nextVisitTime').value = '10:00';
+            
+            showNotification("Formulaire effacé", "info");
+        });
+        
+        // Fonction pour mettre à jour la liste des prédications
+        function updatePreachingList() {
+            if (preachings.length === 0) {
+                preachingList.innerHTML = `
+                    <div class="empty-list">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>Aucune prédication enregistrée</h3>
+                        <p>Ajoutez votre première prédication dans l'onglet "RDV"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Trier par date (la plus récente en premier)
+            const sortedPreachings = [...preachings].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Générer le HTML pour chaque prédication
+            preachingList.innerHTML = sortedPreachings.map(preaching => `
+                <div class="list-item">
+                    <div class="list-item-header">
+                        <div class="list-date">
+                            <i class="fas fa-calendar-alt"></i> ${preaching.date}
+                        </div>
+                        <div class="list-location">
+                            <i class="fas fa-map-marker-alt"></i> ${preaching.location}
+                        </div>
+                    </div>
+                    <div>
+                        <strong>Quartier:</strong> ${preaching.neighborhood}
+                    </div>
+                    <div class="list-group">
+                        <i class="fas fa-users"></i> ${preaching.group}
+                    </div>
+                    ${preaching.preaching ? `<div style="margin-top: 10px;"><strong>Notes:</strong> ${preaching.preaching}</div>` : ''}
+                    ${preaching.latitude ? `<div style="margin-top: 5px; font-size: 0.9rem; color: #64748b;"><i class="fas fa-map-pin"></i> ${preaching.latitude.toFixed(4)}, ${preaching.longitude.toFixed(4)}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Fonction pour mettre à jour la liste des activités
+        function updateActivityList() {
+            if (activities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="empty-list">
+                        <i class="fas fa-book-open"></i>
+                        <h3>Cahier d'activité vide</h3>
+                        <p>Ajoutez votre première entrée pour commencer à suivre vos activités</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Trier par date de visite (la plus proche en premier)
+            const sortedActivities = [...activities].sort((a, b) => new Date(a.nextVisitDate) - new Date(b.nextVisitDate));
+            
+            // Générer le HTML pour chaque activité
+            activityList.innerHTML = sortedActivities.map(activity => {
+                // Vérifier si la visite est passée
+                const visitDate = new Date(`${activity.nextVisitDate}T${activity.nextVisitTime}`);
+                const now = new Date();
+                const isPast = visitDate < now;
+                const statusClass = isPast ? 'status-pending' : 'status-pending';
+                const statusText = isPast ? 'En attente' : 'À venir';
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-item-header">
+                            <div class="activity-person">
+                                <i class="fas fa-user"></i> ${activity.personName}
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="activity-date">
+                                <i class="fas fa-calendar"></i> ${activity.nextVisitDate}
+                            </div>
+                        </div>
+                        
+                        <div class="activity-theme">
+                            <i class="fas fa-book-open"></i> <strong>Thème:</strong> ${activity.theme}
+                        </div>
+                        
+                        ${activity.verse ? `
+                        <div class="activity-verse">
+                            <i class="fas fa-bible"></i> <strong>Verset/Publication:</strong> ${activity.verse}
+                        </div>
+                        ` : ''}
+                        
+                        ${activity.suspendedTheme ? `
+                        <div class="activity-suspended">
+                            <i class="fas fa-pause-circle"></i> <strong>Thème en suspens:</strong> ${activity.suspendedTheme}
+                        </div>
+                        ` : ''}
+                        
+                        ${activity.latitude && activity.longitude ? `
+                        <div style="margin-top: 10px; color: #64748b;">
+                            <i class="fas fa-map-marked-alt"></i> <strong>Localisation:</strong> 
+                            <div style="margin-top: 5px; padding: 10px; background-color: #f8f9fa; border-radius: 4px; font-size: 0.9em;">
+                                ${activity.latitude.toFixed(6)}, ${activity.longitude.toFixed(6)}
+                                ${activity.address ? `<br><small>${activity.address}</small>` : ''}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${activity.notes ? `
+                        <div style="margin-top: 10px; color: #64748b;">
+                            <i class="fas fa-sticky-note"></i> <strong>Notes:</strong> 
+                            <div style="margin-top: 5px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                                ${activity.notes}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="activity-next-visit">
+                            <div>
+                                <i class="fas fa-clock"></i> Prochaine visite: ${activity.nextVisitDate} à ${activity.nextVisitTime}
+                            </div>
+                        </div>
+                        
+                        <div class="activity-actions">
+                            <button class="btn-edit" onclick="editActivity(${activity.id})">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                            <button class="btn-delete" onclick="deleteActivity(${activity.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Fonction pour éditer une activité
+        window.editActivity = function(id) {
+            const activity = activities.find(a => a.id === id);
+            if (!activity) return;
+            
+            // Remplir le formulaire avec les données de l'activité
+            document.getElementById('personName').value = activity.personName || '';
+            document.getElementById('theme').value = activity.theme || '';
+            document.getElementById('verse').value = activity.verse || '';
+            document.getElementById('suspendedTheme').value = activity.suspendedTheme || '';
+            document.getElementById('nextVisitDate').value = activity.nextVisitDate || '';
+            document.getElementById('nextVisitTime').value = activity.nextVisitTime || '';
+            
+            // Remplir les données GPS si disponibles
+            if (activity.latitude && activity.longitude) {
+                activityLatitude = activity.latitude;
+                activityLongitude = activity.longitude;
+                activityAddress = activity.address || '';
+                
+                activityLatitudeElement.textContent = activityLatitude.toFixed(6);
+                activityLongitudeElement.textContent = activityLongitude.toFixed(6);
+                activityLatitudeInput.value = activityLatitude;
+                activityLongitudeInput.value = activityLongitude;
+                activityAddressInput.value = activityAddress;
+                
+                activityGpsInfo.innerHTML = `
+                    <p><i class="fas fa-check-circle" style="color: #27ae60;"></i> Localisation déjà enregistrée</p>
+                    <div class="coordinates-display">
+                        <div class="coordinate-item">
+                            <strong>Latitude:</strong> ${activityLatitude.toFixed(6)}
+                        </div>
+                        <div class="coordinate-item">
+                            <strong>Longitude:</strong> ${activityLongitude.toFixed(6)}
+                        </div>
+                    </div>
+                `;
+                
+                if (activity.address) {
+                    addressDetails.innerHTML = `
+                        <div class="address-line"><i class="fas fa-address-card"></i> ${activity.address}</div>
+                    `;
+                    addressInfo.classList.add('show');
+                }
+            }
+            
+            // Remplir l'éditeur enrichi
+            richNotes.innerHTML = activity.notes || '';
+            notesHiddenInput.value = activity.notes || '';
+            
+            // Changer le texte du bouton
+            document.getElementById('saveActivityBtn').innerHTML = '<i class="fas fa-save"></i> Mettre à jour';
+            
+            // Supprimer l'activité actuelle
+            activities = activities.filter(a => a.id !== id);
+            localStorage.setItem('activities', JSON.stringify(activities));
+            
+            // Basculer vers l'onglet cahier
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector('.tab[data-tab="cahier"]').classList.add('active');
+            document.getElementById('cahier-tab').classList.add('active');
+            
+            showNotification("Activité chargée pour modification", "info");
+        };
+        
+        // Fonction pour supprimer une activité
+        window.deleteActivity = function(id) {
+            if (confirm("Voulez-vous vraiment supprimer cette activité ?")) {
+                activities = activities.filter(a => a.id !== id);
+                localStorage.setItem('activities', JSON.stringify(activities));
+                updateActivityList();
+                updateStatistics();
+                showNotification("Activité supprimée", "success");
+            }
+        };
+        
+        // Fonction pour mettre à jour les statistiques
+        function updateStatistics() {
+            // Total des prédications
+            document.getElementById('totalPreachings').textContent = preachings.length;
+            
+            // Groupes actifs (groupes uniques)
+            const uniqueGroups = [...new Set(preachings.map(p => p.group))].filter(g => g);
+            document.getElementById('activeGroups').textContent = uniqueGroups.length;
+            
+            // Lieux différents
+            const uniqueLocations = [...new Set(preachings.map(p => p.location))].filter(l => l);
+            document.getElementById('differentLocations').textContent = uniqueLocations.length;
+            
+            // Total des activités
+            document.getElementById('totalActivities').textContent = activities.length;
+            
+            // Répartition par groupe
+            const groupDistribution = document.getElementById('groupDistribution');
+            
+            if (preachings.length === 0) {
+                groupDistribution.innerHTML = `<p style="color: #64748b; text-align: center;">Aucune donnée disponible</p>`;
+                return;
+            }
+            
+            // Compter les prédications par groupe
+            const groupCounts = {};
+            preachings.forEach(p => {
+                if (p.group) {
+                    groupCounts[p.group] = (groupCounts[p.group] || 0) + 1;
+                }
+            });
+            
+            // Créer les barres de répartition
+            groupDistribution.innerHTML = Object.entries(groupCounts).map(([group, count]) => {
+                const percentage = (count / preachings.length * 100).toFixed(1);
+                return `
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>${group}</span>
+                            <span>${count} (${percentage}%)</span>
+                        </div>
+                        <div style="background-color: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden;">
+                            <div style="background-color: #3498db; height: 100%; width: ${percentage}%; border-radius: 5px;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
