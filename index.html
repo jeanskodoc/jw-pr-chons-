@@ -935,6 +935,18 @@
             gap: 5px;
         }
         
+        .btn-load-form {
+            background-color: #9b59b6;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
         .list-item.editing {
             background-color: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -973,6 +985,37 @@
             margin-left: 10px;
             vertical-align: middle;
         }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .form-title {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-mode-indicator {
+            background-color: #9b59b6;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .edit-mode {
+            background-color: #ffc107;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -1005,7 +1048,19 @@
         
         <!-- Onglet RDV -->
         <div id="rdv-tab" class="tab-content active">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-calendar-check"></i>
+                    <span id="formTitle">Nouvelle prédication</span>
+                </div>
+                <div id="formMode" class="form-mode-indicator" style="display: none;">
+                    Mode édition
+                </div>
+            </div>
+            
             <form id="preachingForm">
+                <input type="hidden" id="editingId" name="editingId" value="">
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="date">
@@ -1088,15 +1143,30 @@
                     <button type="submit" id="saveBtn" class="btn btn-success">
                         <i class="fas fa-save"></i> Enregistrer
                     </button>
+                    
+                    <button type="button" id="cancelEditBtn" class="btn" style="background-color: #7f8c8d; color: white; display: none;">
+                        <i class="fas fa-times"></i> Annuler l'édition
+                    </button>
                 </div>
             </form>
         </div>
         
         <!-- Onglet Cahier d'activité -->
         <div id="cahier-tab" class="tab-content">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-book"></i>
+                    <span id="activityFormTitle">Nouvelle entrée dans le cahier d'activité</span>
+                </div>
+                <div id="activityFormMode" class="form-mode-indicator" style="display: none;">
+                    Mode édition
+                </div>
+            </div>
+            
             <div class="activity-form">
-                <h3><i class="fas fa-plus-circle"></i> Nouvelle entrée dans le cahier d'activité</h3>
                 <form id="activityForm">
+                    <input type="hidden" id="editingActivityId" name="editingActivityId" value="">
+                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="personName"><i class="fas fa-user"></i> Nom de la prochaine étude</label>
@@ -1235,6 +1305,10 @@
                         
                         <button type="button" id="clearActivityForm" class="btn btn-primary">
                             <i class="fas fa-eraser"></i> Effacer le formulaire
+                        </button>
+                        
+                        <button type="button" id="cancelActivityEditBtn" class="btn" style="background-color: #7f8c8d; color: white; display: none;">
+                            <i class="fas fa-times"></i> Annuler l'édition
                         </button>
                     </div>
                 </form>
@@ -1392,6 +1466,14 @@
         const cancelLink = document.getElementById('cancelLink');
         const insertLink = document.getElementById('insertLink');
         const predefinedSearchButtons = document.querySelectorAll('.predefined-search');
+        const formTitle = document.getElementById('formTitle');
+        const formMode = document.getElementById('formMode');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const editingIdInput = document.getElementById('editingId');
+        const activityFormTitle = document.getElementById('activityFormTitle');
+        const activityFormMode = document.getElementById('activityFormMode');
+        const cancelActivityEditBtn = document.getElementById('cancelActivityEditBtn');
+        const editingActivityIdInput = document.getElementById('editingActivityId');
         
         // Variables pour stocker les données
         let userLatitude = null;
@@ -1446,6 +1528,22 @@
                 // Activer l'onglet sélectionné
                 tab.classList.add('active');
                 document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Si on passe à l'onglet RDV, vérifier si on est en mode édition
+                if (tabId === 'rdv' && editingIdInput.value) {
+                    formMode.style.display = 'block';
+                    formMode.classList.add('edit-mode');
+                    formTitle.textContent = 'Modifier une prédication';
+                    cancelEditBtn.style.display = 'flex';
+                }
+                
+                // Si on passe à l'onglet cahier, vérifier si on est en mode édition
+                if (tabId === 'cahier' && editingActivityIdInput.value) {
+                    activityFormMode.style.display = 'block';
+                    activityFormMode.classList.add('edit-mode');
+                    activityFormTitle.textContent = 'Modifier une activité';
+                    cancelActivityEditBtn.style.display = 'flex';
+                }
             });
         });
         
@@ -1980,10 +2078,32 @@
             data.latitude = userLatitude;
             data.longitude = userLongitude;
             data.timestamp = new Date().toISOString();
-            data.id = Date.now(); // ID unique
             
-            // Ajouter à la liste des prédications
-            preachings.push(data);
+            // Vérifier si on est en mode édition
+            const editingId = editingIdInput.value;
+            if (editingId) {
+                // Mode édition: mettre à jour l'existant
+                data.id = editingId;
+                
+                // Trouver l'index de la prédication
+                const index = preachings.findIndex(p => p.id == editingId);
+                
+                if (index !== -1) {
+                    // Conserver les données existantes si non modifiées
+                    preachings[index] = {...preachings[index], ...data};
+                    showNotification("Prédication modifiée avec succès!", "success");
+                }
+                
+                // Quitter le mode édition
+                cancelEdit();
+            } else {
+                // Mode création: ajouter une nouvelle prédication
+                data.id = Date.now(); // ID unique
+                
+                // Ajouter à la liste des prédications
+                preachings.push(data);
+                showNotification("Prédication enregistrée avec succès!", "success");
+            }
             
             // Sauvegarder dans le localStorage
             localStorage.setItem('preachings', JSON.stringify(preachings));
@@ -1992,14 +2112,14 @@
             updatePreachingList();
             updateStatistics();
             
-            showNotification("Prédication enregistrée avec succès!", "success");
-            
             // Réinitialiser le formulaire
-            form.reset();
-            
-            // Réinitialiser la date à aujourd'hui
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date').value = today;
+            if (!editingId) {
+                form.reset();
+                
+                // Réinitialiser la date à aujourd'hui
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('date').value = today;
+            }
         });
         
         // Gestion de la soumission du formulaire d'activité
@@ -2026,12 +2146,34 @@
             }
             
             // Ajouter des métadonnées
-            data.id = Date.now(); // ID unique
             data.createdAt = new Date().toISOString();
             data.status = 'pending'; // pending, completed
             
-            // Ajouter à la liste des activités
-            activities.push(data);
+            // Vérifier si on est en mode édition
+            const editingActivityId = editingActivityIdInput.value;
+            if (editingActivityId) {
+                // Mode édition: mettre à jour l'existant
+                data.id = editingActivityId;
+                
+                // Trouver l'index de l'activité
+                const index = activities.findIndex(a => a.id == editingActivityId);
+                
+                if (index !== -1) {
+                    // Conserver les données existantes si non modifiées
+                    activities[index] = {...activities[index], ...data};
+                    showNotification("Activité modifiée avec succès!", "success");
+                }
+                
+                // Quitter le mode édition
+                cancelActivityEdit();
+            } else {
+                // Mode création: ajouter une nouvelle activité
+                data.id = Date.now(); // ID unique
+                
+                // Ajouter à la liste des activités
+                activities.push(data);
+                showNotification("Activité ajoutée au cahier avec succès!", "success");
+            }
             
             // Sauvegarder dans le localStorage
             localStorage.setItem('activities', JSON.stringify(activities));
@@ -2040,29 +2182,14 @@
             updateActivityList();
             updateStatistics();
             
-            showNotification("Activité ajoutée au cahier avec succès!", "success");
-            
-            // Réinitialiser le formulaire
-            activityForm.reset();
-            richNotes.innerHTML = '';
-            notesHiddenInput.value = '';
-            activityGpsInfo.innerHTML = '<p>Cliquez sur "Obtenir la localisation" pour capturer les coordonnées GPS actuelles.</p>';
-            addressInfo.classList.remove('show');
-            activityLatitude = null;
-            activityLongitude = null;
-            activityAddress = null;
-            activityLatitudeInput.value = '';
-            activityLongitudeInput.value = '';
-            activityAddressInput.value = '';
-            
-            // Définir les valeurs par défaut
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('nextVisitDate').value = today;
-            document.getElementById('nextVisitTime').value = '10:00';
+            // Réinitialiser le formulaire si pas en mode édition
+            if (!editingActivityId) {
+                resetActivityForm();
+            }
         });
         
-        // Bouton pour effacer le formulaire d'activité
-        clearActivityFormBtn.addEventListener('click', function() {
+        // Fonction pour réinitialiser le formulaire d'activité
+        function resetActivityForm() {
             activityForm.reset();
             richNotes.innerHTML = '';
             notesHiddenInput.value = '';
@@ -2081,7 +2208,11 @@
             const nextWeekFormatted = nextWeek.toISOString().split('T')[0];
             document.getElementById('nextVisitDate').value = nextWeekFormatted;
             document.getElementById('nextVisitTime').value = '10:00';
-            
+        }
+        
+        // Bouton pour effacer le formulaire d'activité
+        clearActivityFormBtn.addEventListener('click', function() {
+            resetActivityForm();
             showNotification("Formulaire effacé", "info");
         });
         
@@ -2126,8 +2257,11 @@
                         ${preaching.latitude ? `<div style="margin-top: 5px; font-size: 0.9rem; color: #64748b;"><i class="fas fa-map-pin"></i> ${preaching.latitude.toFixed(4)}, ${preaching.longitude.toFixed(4)}</div>` : ''}
                         
                         <div class="edit-actions">
+                            <button class="btn-load-form" onclick="loadPreachingToForm('${preaching.id}')">
+                                <i class="fas fa-edit"></i> Charger dans le formulaire
+                            </button>
                             <button class="btn-edit" onclick="editPreaching('${preaching.id}')">
-                                <i class="fas fa-edit"></i> Modifier
+                                <i class="fas fa-pencil-alt"></i> Modifier sur place
                             </button>
                             <button class="btn-delete" onclick="deletePreaching('${preaching.id}')">
                                 <i class="fas fa-trash"></i> Supprimer
@@ -2135,7 +2269,7 @@
                         </div>
                         
                         <div class="edit-form" id="edit-form-${preaching.id}">
-                            <h4><i class="fas fa-edit"></i> Modifier cette prédication</h4>
+                            <h4><i class="fas fa-pencil-alt"></i> Modifier cette prédication</h4>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Date de prédication</label>
@@ -2182,7 +2316,86 @@
             }).join('');
         }
         
-        // Fonction pour éditer une prédication
+        // Fonction pour charger une prédication dans le formulaire
+        window.loadPreachingToForm = function(id) {
+            const preaching = preachings.find(p => p.id == id);
+            if (!preaching) return;
+            
+            // Remplir le formulaire avec les données
+            document.getElementById('date').value = preaching.date || '';
+            document.getElementById('location').value = preaching.location || '';
+            document.getElementById('group').value = preaching.group || '';
+            document.getElementById('neighborhood').value = preaching.neighborhood || '';
+            document.getElementById('preaching').value = preaching.preaching || '';
+            
+            // Mettre à jour les coordonnées GPS si disponibles
+            if (preaching.latitude && preaching.longitude) {
+                userLatitude = preaching.latitude;
+                userLongitude = preaching.longitude;
+                
+                latitudeElement.textContent = `Latitude: ${userLatitude.toFixed(6)}`;
+                longitudeElement.textContent = `Longitude: ${userLongitude.toFixed(6)}`;
+                gpsStatusElement.textContent = "Localisation chargée";
+                gpsStatusElement.className = "gps-status active";
+            }
+            
+            // Activer le mode édition
+            editingIdInput.value = id;
+            formMode.style.display = 'block';
+            formMode.classList.add('edit-mode');
+            formTitle.textContent = 'Modifier une prédication';
+            cancelEditBtn.style.display = 'flex';
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Mettre à jour';
+            
+            // Basculer vers l'onglet RDV
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector('.tab[data-tab="rdv"]').classList.add('active');
+            document.getElementById('rdv-tab').classList.add('active');
+            
+            showNotification("Prédication chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
+        };
+        
+        // Fonction pour annuler l'édition dans le formulaire
+        cancelEditBtn.addEventListener('click', cancelEdit);
+        
+        function cancelEdit() {
+            editingIdInput.value = '';
+            formMode.style.display = 'none';
+            formMode.classList.remove('edit-mode');
+            formTitle.textContent = 'Nouvelle prédication';
+            cancelEditBtn.style.display = 'none';
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Enregistrer';
+            
+            // Réinitialiser le formulaire
+            form.reset();
+            
+            // Réinitialiser la date à aujourd'hui
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            showNotification("Mode édition annulé", "info");
+        }
+        
+        // Fonction pour annuler l'édition d'activité dans le formulaire
+        cancelActivityEditBtn.addEventListener('click', cancelActivityEdit);
+        
+        function cancelActivityEdit() {
+            editingActivityIdInput.value = '';
+            activityFormMode.style.display = 'none';
+            activityFormMode.classList.remove('edit-mode');
+            activityFormTitle.textContent = 'Nouvelle entrée dans le cahier d\'activité';
+            cancelActivityEditBtn.style.display = 'none';
+            document.getElementById('saveActivityBtn').innerHTML = '<i class="fas fa-save"></i> Ajouter au cahier';
+            
+            // Réinitialiser le formulaire
+            resetActivityForm();
+            
+            showNotification("Mode édition annulé", "info");
+        }
+        
+        // Fonction pour éditer une prédication sur place
         window.editPreaching = function(id) {
             const item = document.querySelector(`.list-item[data-id="${id}"]`);
             const editForm = document.getElementById(`edit-form-${id}`);
@@ -2191,10 +2404,10 @@
             item.classList.add('editing');
             editForm.style.display = 'block';
             
-            showNotification("Mode édition activé", "info");
+            showNotification("Mode édition sur place activé", "info");
         };
         
-        // Fonction pour sauvegarder les modifications d'une prédication
+        // Fonction pour sauvegarder les modifications d'une prédication sur place
         window.savePreachingEdit = function(id) {
             // Récupérer les valeurs modifiées
             const date = document.getElementById(`edit-date-${id}`).value;
@@ -2226,7 +2439,7 @@
             }
         };
         
-        // Fonction pour annuler l'édition d'une prédication
+        // Fonction pour annuler l'édition d'une prédication sur place
         window.cancelPreachingEdit = function(id) {
             const item = document.querySelector(`.list-item[data-id="${id}"]`);
             const editForm = document.getElementById(`edit-form-${id}`);
@@ -2334,8 +2547,8 @@
                         </div>
                         
                         <div class="activity-actions">
-                            <button class="btn-edit" onclick="editActivity(${activity.id})">
-                                <i class="fas fa-edit"></i> Modifier
+                            <button class="btn-load-form" onclick="loadActivityToForm(${activity.id})">
+                                <i class="fas fa-edit"></i> Charger dans le formulaire
                             </button>
                             <button class="btn-delete" onclick="deleteActivity(${activity.id})">
                                 <i class="fas fa-trash"></i> Supprimer
@@ -2346,8 +2559,8 @@
             }).join('');
         }
         
-        // Fonction pour éditer une activité
-        window.editActivity = function(id) {
+        // Fonction pour charger une activité dans le formulaire
+        window.loadActivityToForm = function(id) {
             const activity = activities.find(a => a.id === id);
             if (!activity) return;
             
@@ -2395,21 +2608,22 @@
             richNotes.innerHTML = activity.notes || '';
             notesHiddenInput.value = activity.notes || '';
             
-            // Changer le texte du bouton
+            // Activer le mode édition
+            editingActivityIdInput.value = activity.id;
+            activityFormMode.style.display = 'block';
+            activityFormMode.classList.add('edit-mode');
+            activityFormTitle.textContent = 'Modifier une activité';
+            cancelActivityEditBtn.style.display = 'flex';
             document.getElementById('saveActivityBtn').innerHTML = '<i class="fas fa-save"></i> Mettre à jour';
-            
-            // Supprimer l'activité actuelle
-            activities = activities.filter(a => a.id !== id);
-            localStorage.setItem('activities', JSON.stringify(activities));
             
             // Basculer vers l'onglet cahier
             tabs.forEach(t => t.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
             
             document.querySelector('.tab[data-tab="cahier"]').classList.add('active');
-            document.getElementById('cahier-tab').classlesList.add('active');
+            document.getElementById('cahier-tab').classList.add('active');
             
-            showNotification("Activité chargée pour modification", "info");
+            showNotification("Activité chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
         };
         
         // Fonction pour supprimer une activité
