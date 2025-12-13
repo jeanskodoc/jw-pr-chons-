@@ -902,6 +902,77 @@
                 min-width: 35px;
             }
         }
+        
+        /* Nouveaux styles pour l'édition des items importés */
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+        }
+        
+        .btn-save-edit {
+            background-color: #27ae60;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-cancel-edit {
+            background-color: #7f8c8d;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .list-item.editing {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .list-item.editing .edit-form {
+            display: block;
+        }
+        
+        .edit-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .edit-form .form-row {
+            margin-bottom: 15px;
+        }
+        
+        .edit-form input,
+        .edit-form select,
+        .edit-form textarea {
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .imported-badge {
+            display: inline-block;
+            background-color: #f39c12;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -1331,6 +1402,7 @@
         let preachings = JSON.parse(localStorage.getItem('preachings')) || [];
         let activities = JSON.parse(localStorage.getItem('activities')) || [];
         let currentLinkCommand = null;
+        let importedData = []; // Stocker les données importées
         
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
@@ -1747,15 +1819,31 @@
             }, 5000);
         }
         
-        // Fonction pour exporter les données au format JSON
+        // Fonction pour exporter les données du formulaire courant au format JSON
         exportBtn.addEventListener('click', function() {
-            if (preachings.length === 0) {
-                showNotification("Aucune donnée à exporter!", "warning");
-                return;
+            // Récupérer les données du formulaire
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Convertir FormData en objet
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Ajouter les coordonnées GPS si disponibles
+            if (userLatitude && userLongitude) {
+                data.latitude = userLatitude;
+                data.longitude = userLongitude;
             }
             
+            // Ajouter un timestamp
+            data.timestamp = new Date().toISOString();
+            
+            // Créer un tableau avec les données (pour être cohérent avec l'import)
+            const exportData = [data];
+            
             // Convertir en JSON
-            const jsonData = JSON.stringify(preachings, null, 2);
+            const jsonData = JSON.stringify(exportData, null, 2);
             
             // Créer un blob et un lien de téléchargement
             const blob = new Blob([jsonData], { type: 'application/json' });
@@ -1773,7 +1861,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            showNotification("Fichier JSON exporté avec succès!", "success");
+            showNotification("Données du formulaire exportées en JSON avec succès!", "success");
         });
         
         // Fonction pour importer un fichier JSON
@@ -1788,15 +1876,22 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedData = JSON.parse(e.target.result);
+                    importedData = JSON.parse(e.target.result);
                     
-                    // Vérifier si c'est un tableau ou un objet unique
-                    if (Array.isArray(importedData)) {
-                        preachings = importedData;
-                    } else {
-                        // Si c'est un objet unique, l'ajouter au tableau
-                        preachings = [importedData];
+                    // Vérifier si c'est un tableau
+                    if (!Array.isArray(importedData)) {
+                        // Si c'est un objet unique, le convertir en tableau
+                        importedData = [importedData];
                     }
+                    
+                    // Ajouter un flag pour identifier les données importées
+                    importedData.forEach(item => {
+                        item.imported = true;
+                        item.id = Date.now() + Math.random(); // ID unique
+                    });
+                    
+                    // Ajouter aux prédications existantes
+                    preachings = [...preachings, ...importedData];
                     
                     // Sauvegarder dans le localStorage
                     localStorage.setItem('preachings', JSON.stringify(preachings));
@@ -1805,7 +1900,7 @@
                     updatePreachingList();
                     updateStatistics();
                     
-                    showNotification("Fichier JSON importé avec succès!", "success");
+                    showNotification(`Fichier JSON importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
                 } catch (error) {
                     console.error("Erreur lors de l'import du JSON:", error);
                     showNotification("Erreur: le fichier JSON est invalide.", "error");
@@ -2007,27 +2102,158 @@
             const sortedPreachings = [...preachings].sort((a, b) => new Date(b.date) - new Date(a.date));
             
             // Générer le HTML pour chaque prédication
-            preachingList.innerHTML = sortedPreachings.map(preaching => `
-                <div class="list-item">
-                    <div class="list-item-header">
-                        <div class="list-date">
-                            <i class="fas fa-calendar-alt"></i> ${preaching.date}
+            preachingList.innerHTML = sortedPreachings.map(preaching => {
+                const isImported = preaching.imported || false;
+                
+                return `
+                    <div class="list-item" data-id="${preaching.id}">
+                        <div class="list-item-header">
+                            <div class="list-date">
+                                <i class="fas fa-calendar-alt"></i> ${preaching.date}
+                                ${isImported ? '<span class="imported-badge">Importé</span>' : ''}
+                            </div>
+                            <div class="list-location">
+                                <i class="fas fa-map-marker-alt"></i> ${preaching.location}
+                            </div>
                         </div>
-                        <div class="list-location">
-                            <i class="fas fa-map-marker-alt"></i> ${preaching.location}
+                        <div>
+                            <strong>Quartier:</strong> ${preaching.neighborhood}
+                        </div>
+                        <div class="list-group">
+                            <i class="fas fa-users"></i> ${preaching.group}
+                        </div>
+                        ${preaching.preaching ? `<div style="margin-top: 10px;"><strong>Notes:</strong> ${preaching.preaching}</div>` : ''}
+                        ${preaching.latitude ? `<div style="margin-top: 5px; font-size: 0.9rem; color: #64748b;"><i class="fas fa-map-pin"></i> ${preaching.latitude.toFixed(4)}, ${preaching.longitude.toFixed(4)}</div>` : ''}
+                        
+                        <div class="edit-actions">
+                            <button class="btn-edit" onclick="editPreaching('${preaching.id}')">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                            <button class="btn-delete" onclick="deletePreaching('${preaching.id}')">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                        
+                        <div class="edit-form" id="edit-form-${preaching.id}">
+                            <h4><i class="fas fa-edit"></i> Modifier cette prédication</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date de prédication</label>
+                                    <input type="date" id="edit-date-${preaching.id}" value="${preaching.date}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Lieu de prédication</label>
+                                    <input type="text" id="edit-location-${preaching.id}" value="${preaching.location}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Groupe de prédication</label>
+                                    <select id="edit-group-${preaching.id}">
+                                        <option value="Groupe 1" ${preaching.group === 'Groupe 1' ? 'selected' : ''}>Groupe 1</option>
+                                        <option value="Groupe 2" ${preaching.group === 'Groupe 2' ? 'selected' : ''}>Groupe 2</option>
+                                        <option value="Groupe 3" ${preaching.group === 'Groupe 3' ? 'selected' : ''}>Groupe 3</option>
+                                        <option value="Groupe 4" ${preaching.group === 'Groupe 4' ? 'selected' : ''}>Groupe 4</option>
+                                        <option value="Groupe 5" ${preaching.group === 'Groupe 5' ? 'selected' : ''}>Groupe 5</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Quartier</label>
+                                    <input type="text" id="edit-neighborhood-${preaching.id}" value="${preaching.neighborhood}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Prédication / Notes</label>
+                                    <textarea id="edit-preaching-${preaching.id}" rows="3">${preaching.preaching || ''}</textarea>
+                                </div>
+                            </div>
+                            <div class="edit-actions">
+                                <button class="btn-save-edit" onclick="savePreachingEdit('${preaching.id}')">
+                                    <i class="fas fa-save"></i> Enregistrer
+                                </button>
+                                <button class="btn-cancel-edit" onclick="cancelPreachingEdit('${preaching.id}')">
+                                    <i class="fas fa-times"></i> Annuler
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <strong>Quartier:</strong> ${preaching.neighborhood}
-                    </div>
-                    <div class="list-group">
-                        <i class="fas fa-users"></i> ${preaching.group}
-                    </div>
-                    ${preaching.preaching ? `<div style="margin-top: 10px;"><strong>Notes:</strong> ${preaching.preaching}</div>` : ''}
-                    ${preaching.latitude ? `<div style="margin-top: 5px; font-size: 0.9rem; color: #64748b;"><i class="fas fa-map-pin"></i> ${preaching.latitude.toFixed(4)}, ${preaching.longitude.toFixed(4)}</div>` : ''}
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
+        
+        // Fonction pour éditer une prédication
+        window.editPreaching = function(id) {
+            const item = document.querySelector(`.list-item[data-id="${id}"]`);
+            const editForm = document.getElementById(`edit-form-${id}`);
+            
+            // Basculer l'affichage
+            item.classList.add('editing');
+            editForm.style.display = 'block';
+            
+            showNotification("Mode édition activé", "info");
+        };
+        
+        // Fonction pour sauvegarder les modifications d'une prédication
+        window.savePreachingEdit = function(id) {
+            // Récupérer les valeurs modifiées
+            const date = document.getElementById(`edit-date-${id}`).value;
+            const location = document.getElementById(`edit-location-${id}`).value;
+            const group = document.getElementById(`edit-group-${id}`).value;
+            const neighborhood = document.getElementById(`edit-neighborhood-${id}`).value;
+            const preaching = document.getElementById(`edit-preaching-${id}`).value;
+            
+            // Trouver l'index de la prédication
+            const index = preachings.findIndex(p => p.id == id);
+            
+            if (index !== -1) {
+                // Mettre à jour les valeurs
+                preachings[index].date = date;
+                preachings[index].location = location;
+                preachings[index].group = group;
+                preachings[index].neighborhood = neighborhood;
+                preachings[index].preaching = preaching;
+                preachings[index].updatedAt = new Date().toISOString();
+                
+                // Sauvegarder dans le localStorage
+                localStorage.setItem('preachings', JSON.stringify(preachings));
+                
+                // Mettre à jour l'affichage
+                updatePreachingList();
+                updateStatistics();
+                
+                showNotification("Prédication modifiée avec succès!", "success");
+            }
+        };
+        
+        // Fonction pour annuler l'édition d'une prédication
+        window.cancelPreachingEdit = function(id) {
+            const item = document.querySelector(`.list-item[data-id="${id}"]`);
+            const editForm = document.getElementById(`edit-form-${id}`);
+            
+            // Désactiver le mode édition
+            item.classList.remove('editing');
+            editForm.style.display = 'none';
+            
+            showNotification("Modification annulée", "info");
+        };
+        
+        // Fonction pour supprimer une prédication
+        window.deletePreaching = function(id) {
+            if (confirm("Voulez-vous vraiment supprimer cette prédication ?")) {
+                // Supprimer de la liste
+                preachings = preachings.filter(p => p.id != id);
+                
+                // Sauvegarder dans le localStorage
+                localStorage.setItem('preachings', JSON.stringify(preachings));
+                
+                // Mettre à jour l'affichage
+                updatePreachingList();
+                updateStatistics();
+                
+                showNotification("Prédication supprimée", "success");
+            }
+        };
         
         // Fonction pour mettre à jour la liste des activités
         function updateActivityList() {
@@ -2181,7 +2407,7 @@
             tabContents.forEach(content => content.classList.remove('active'));
             
             document.querySelector('.tab[data-tab="cahier"]').classList.add('active');
-            document.getElementById('cahier-tab').classList.add('active');
+            document.getElementById('cahier-tab').classlesList.add('active');
             
             showNotification("Activité chargée pour modification", "info");
         };
