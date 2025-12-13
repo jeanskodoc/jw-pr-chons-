@@ -1016,6 +1016,83 @@
             background-color: #ffc107;
             color: #333;
         }
+        
+        .auto-load-options {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #3498db;
+        }
+        
+        .auto-load-options h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .auto-load-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .auto-load-checkbox input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .auto-load-checkbox label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+        
+        .load-first-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .load-all-btn {
+            background-color: #9b59b6;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        
+        .json-preview {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .json-preview.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -1055,6 +1132,25 @@
                 </div>
                 <div id="formMode" class="form-mode-indicator" style="display: none;">
                     Mode édition
+                </div>
+            </div>
+            
+            <div class="auto-load-options" id="autoLoadOptions" style="display: none;">
+                <h4><i class="fas fa-file-import"></i> Fichier JSON importé</h4>
+                <div class="auto-load-checkbox">
+                    <input type="checkbox" id="autoLoadCheckbox" checked>
+                    <label for="autoLoadCheckbox">Charger automatiquement le premier élément dans le formulaire</label>
+                </div>
+                <div>
+                    <button type="button" id="loadFirstBtn" class="load-first-btn">
+                        <i class="fas fa-arrow-right"></i> Charger le premier élément
+                    </button>
+                    <button type="button" id="loadAllBtn" class="load-all-btn">
+                        <i class="fas fa-list"></i> Voir tous les éléments
+                    </button>
+                </div>
+                <div class="json-preview" id="jsonPreview">
+                    <!-- Aperçu JSON -->
                 </div>
             </div>
             
@@ -1160,6 +1256,25 @@
                 </div>
                 <div id="activityFormMode" class="form-mode-indicator" style="display: none;">
                     Mode édition
+                </div>
+            </div>
+            
+            <div class="auto-load-options" id="activityAutoLoadOptions" style="display: none;">
+                <h4><i class="fas fa-file-import"></i> Fichier JSON importé (Activités)</h4>
+                <div class="auto-load-checkbox">
+                    <input type="checkbox" id="activityAutoLoadCheckbox" checked>
+                    <label for="activityAutoLoadCheckbox">Charger automatiquement le premier élément dans le formulaire</label>
+                </div>
+                <div>
+                    <button type="button" id="activityLoadFirstBtn" class="load-first-btn">
+                        <i class="fas fa-arrow-right"></i> Charger le premier élément
+                    </button>
+                    <button type="button" id="activityLoadAllBtn" class="load-all-btn">
+                        <i class="fas fa-list"></i> Voir tous les éléments
+                    </button>
+                </div>
+                <div class="json-preview" id="activityJsonPreview">
+                    <!-- Aperçu JSON -->
                 </div>
             </div>
             
@@ -1474,6 +1589,16 @@
         const activityFormMode = document.getElementById('activityFormMode');
         const cancelActivityEditBtn = document.getElementById('cancelActivityEditBtn');
         const editingActivityIdInput = document.getElementById('editingActivityId');
+        const autoLoadOptions = document.getElementById('autoLoadOptions');
+        const autoLoadCheckbox = document.getElementById('autoLoadCheckbox');
+        const loadFirstBtn = document.getElementById('loadFirstBtn');
+        const loadAllBtn = document.getElementById('loadAllBtn');
+        const jsonPreview = document.getElementById('jsonPreview');
+        const activityAutoLoadOptions = document.getElementById('activityAutoLoadOptions');
+        const activityAutoLoadCheckbox = document.getElementById('activityAutoLoadCheckbox');
+        const activityLoadFirstBtn = document.getElementById('activityLoadFirstBtn');
+        const activityLoadAllBtn = document.getElementById('activityLoadAllBtn');
+        const activityJsonPreview = document.getElementById('activityJsonPreview');
         
         // Variables pour stocker les données
         let userLatitude = null;
@@ -1485,6 +1610,8 @@
         let activities = JSON.parse(localStorage.getItem('activities')) || [];
         let currentLinkCommand = null;
         let importedData = []; // Stocker les données importées
+        let lastImportedData = null; // Dernières données importées
+        let isActivityData = false; // Si les données importées sont pour les activités
         
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
@@ -1543,6 +1670,21 @@
                     activityFormMode.classList.add('edit-mode');
                     activityFormTitle.textContent = 'Modifier une activité';
                     cancelActivityEditBtn.style.display = 'flex';
+                }
+                
+                // Afficher les options de chargement automatique si des données ont été importées
+                if (tabId === 'rdv' && lastImportedData && !isActivityData) {
+                    autoLoadOptions.style.display = 'block';
+                    updateJsonPreview(lastImportedData, jsonPreview);
+                } else if (tabId === 'rdv') {
+                    autoLoadOptions.style.display = 'none';
+                }
+                
+                if (tabId === 'cahier' && lastImportedData && isActivityData) {
+                    activityAutoLoadOptions.style.display = 'block';
+                    updateJsonPreview(lastImportedData, activityJsonPreview);
+                } else if (tabId === 'cahier') {
+                    activityAutoLoadOptions.style.display = 'none';
                 }
             });
         });
@@ -1975,30 +2117,84 @@
             reader.onload = function(e) {
                 try {
                     importedData = JSON.parse(e.target.result);
+                    lastImportedData = importedData; // Sauvegarder pour référence future
                     
                     // Vérifier si c'est un tableau
                     if (!Array.isArray(importedData)) {
                         // Si c'est un objet unique, le convertir en tableau
                         importedData = [importedData];
+                        lastImportedData = importedData;
                     }
                     
+                    // Détecter si ce sont des données d'activité ou de prédication
+                    isActivityData = detectDataType(importedData[0]);
+                    
                     // Ajouter un flag pour identifier les données importées
-                    importedData.forEach(item => {
+                    importedData.forEach((item, index) => {
                         item.imported = true;
-                        item.id = Date.now() + Math.random(); // ID unique
+                        item.id = Date.now() + Math.random() + index; // ID unique
                     });
                     
-                    // Ajouter aux prédications existantes
-                    preachings = [...preachings, ...importedData];
+                    if (isActivityData) {
+                        // Ajouter aux activités existantes
+                        activities = [...activities, ...importedData];
+                        
+                        // Sauvegarder dans le localStorage
+                        localStorage.setItem('activities', JSON.stringify(activities));
+                        
+                        // Mettre à jour l'affichage
+                        updateActivityList();
+                        
+                        // Afficher les options de chargement automatique
+                        activityAutoLoadOptions.style.display = 'block';
+                        updateJsonPreview(importedData, activityJsonPreview);
+                        
+                        // Basculer vers l'onglet cahier si la case est cochée
+                        if (activityAutoLoadCheckbox.checked && importedData.length > 0) {
+                            // Charger le premier élément dans le formulaire
+                            loadActivityFromImportedData(importedData[0]);
+                            
+                            // Basculer vers l'onglet cahier
+                            tabs.forEach(t => t.classList.remove('active'));
+                            tabContents.forEach(content => content.classList.remove('active'));
+                            
+                            document.querySelector('.tab[data-tab="cahier"]').classList.add('active');
+                            document.getElementById('cahier-tab').classList.add('active');
+                        }
+                        
+                        showNotification(`Fichier JSON d'activités importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
+                    } else {
+                        // Ajouter aux prédications existantes
+                        preachings = [...preachings, ...importedData];
+                        
+                        // Sauvegarder dans le localStorage
+                        localStorage.setItem('preachings', JSON.stringify(preachings));
+                        
+                        // Mettre à jour l'affichage
+                        updatePreachingList();
+                        
+                        // Afficher les options de chargement automatique
+                        autoLoadOptions.style.display = 'block';
+                        updateJsonPreview(importedData, jsonPreview);
+                        
+                        // Basculer vers l'onglet RDV si la case est cochée
+                        if (autoLoadCheckbox.checked && importedData.length > 0) {
+                            // Charger le premier élément dans le formulaire
+                            loadPreachingFromImportedData(importedData[0]);
+                            
+                            // Basculer vers l'onglet RDV
+                            tabs.forEach(t => t.classList.remove('active'));
+                            tabContents.forEach(content => content.classList.remove('active'));
+                            
+                            document.querySelector('.tab[data-tab="rdv"]').classList.add('active');
+                            document.getElementById('rdv-tab').classList.add('active');
+                        }
+                        
+                        showNotification(`Fichier JSON de prédications importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
+                    }
                     
-                    // Sauvegarder dans le localStorage
-                    localStorage.setItem('preachings', JSON.stringify(preachings));
-                    
-                    // Mettre à jour l'affichage
-                    updatePreachingList();
                     updateStatistics();
                     
-                    showNotification(`Fichier JSON importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
                 } catch (error) {
                     console.error("Erreur lors de l'import du JSON:", error);
                     showNotification("Erreur: le fichier JSON est invalide.", "error");
@@ -2009,6 +2205,186 @@
             
             // Réinitialiser l'input file
             event.target.value = '';
+        });
+        
+        // Fonction pour détecter le type de données (activité ou prédication)
+        function detectDataType(data) {
+            // Vérifier la présence de champs spécifiques aux activités
+            const activityFields = ['personName', 'theme', 'verse', 'nextVisitDate', 'nextVisitTime'];
+            const hasActivityFields = activityFields.some(field => data.hasOwnProperty(field));
+            
+            // Vérifier la présence de champs spécifiques aux prédications
+            const preachingFields = ['location', 'group', 'neighborhood', 'preaching'];
+            const hasPreachingFields = preachingFields.some(field => data.hasOwnProperty(field));
+            
+            // Si plus de champs d'activité que de prédication, c'est une activité
+            return hasActivityFields && (!hasPreachingFields || (hasActivityFields && hasPreachingFields && Object.keys(data).length > 5));
+        }
+        
+        // Fonction pour mettre à jour l'aperçu JSON
+        function updateJsonPreview(data, previewElement) {
+            if (!data || data.length === 0) {
+                previewElement.innerHTML = '<p>Aucune donnée à afficher</p>';
+                return;
+            }
+            
+            let previewHtml = `<p><strong>${data.length} élément(s) importé(s)</strong></p>`;
+            
+            // Afficher les premiers éléments (max 3)
+            const itemsToShow = Math.min(data.length, 3);
+            for (let i = 0; i < itemsToShow; i++) {
+                const item = data[i];
+                previewHtml += `<div style="margin-bottom: 10px; padding: 10px; background-color: white; border-radius: 4px; border-left: 3px solid #3498db;">`;
+                
+                if (isActivityData) {
+                    previewHtml += `<strong>${item.personName || 'Sans nom'}</strong><br>`;
+                    previewHtml += `<small>${item.theme || 'Sans thème'} - ${item.nextVisitDate || 'Pas de date'}</small>`;
+                } else {
+                    previewHtml += `<strong>${item.location || 'Sans lieu'}</strong><br>`;
+                    previewHtml += `<small>${item.date || 'Pas de date'} - ${item.group || 'Pas de groupe'}</small>`;
+                }
+                
+                previewHtml += `</div>`;
+            }
+            
+            if (data.length > 3) {
+                previewHtml += `<p>... et ${data.length - 3} autre(s) élément(s)</p>`;
+            }
+            
+            previewElement.innerHTML = previewHtml;
+            previewElement.classList.add('show');
+        }
+        
+        // Fonction pour charger une prédication à partir des données importées
+        function loadPreachingFromImportedData(data) {
+            // Remplir le formulaire avec les données
+            document.getElementById('date').value = data.date || '';
+            document.getElementById('location').value = data.location || '';
+            document.getElementById('group').value = data.group || '';
+            document.getElementById('neighborhood').value = data.neighborhood || '';
+            document.getElementById('preaching').value = data.preaching || '';
+            
+            // Mettre à jour les coordonnées GPS si disponibles
+            if (data.latitude && data.longitude) {
+                userLatitude = data.latitude;
+                userLongitude = data.longitude;
+                
+                latitudeElement.textContent = `Latitude: ${userLatitude.toFixed(6)}`;
+                longitudeElement.textContent = `Longitude: ${userLongitude.toFixed(6)}`;
+                gpsStatusElement.textContent = "Localisation chargée";
+                gpsStatusElement.className = "gps-status active";
+            }
+            
+            // Activer le mode édition
+            editingIdInput.value = data.id;
+            formMode.style.display = 'block';
+            formMode.classList.add('edit-mode');
+            formTitle.textContent = 'Modifier une prédication importée';
+            cancelEditBtn.style.display = 'flex';
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Mettre à jour';
+            
+            showNotification("Première prédication importée chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
+        }
+        
+        // Fonction pour charger une activité à partir des données importées
+        function loadActivityFromImportedData(data) {
+            // Remplir le formulaire avec les données de l'activité
+            document.getElementById('personName').value = data.personName || '';
+            document.getElementById('theme').value = data.theme || '';
+            document.getElementById('verse').value = data.verse || '';
+            document.getElementById('suspendedTheme').value = data.suspendedTheme || '';
+            document.getElementById('nextVisitDate').value = data.nextVisitDate || '';
+            document.getElementById('nextVisitTime').value = data.nextVisitTime || '';
+            
+            // Remplir les données GPS si disponibles
+            if (data.latitude && data.longitude) {
+                activityLatitude = data.latitude;
+                activityLongitude = data.longitude;
+                activityAddress = data.address || '';
+                
+                activityLatitudeElement.textContent = activityLatitude.toFixed(6);
+                activityLongitudeElement.textContent = activityLongitude.toFixed(6);
+                activityLatitudeInput.value = activityLatitude;
+                activityLongitudeInput.value = activityLongitude;
+                activityAddressInput.value = activityAddress;
+                
+                activityGpsInfo.innerHTML = `
+                    <p><i class="fas fa-check-circle" style="color: #27ae60;"></i> Localisation importée</p>
+                    <div class="coordinates-display">
+                        <div class="coordinate-item">
+                            <strong>Latitude:</strong> ${activityLatitude.toFixed(6)}
+                        </div>
+                        <div class="coordinate-item">
+                            <strong>Longitude:</strong> ${activityLongitude.toFixed(6)}
+                        </div>
+                    </div>
+                `;
+                
+                if (data.address) {
+                    addressDetails.innerHTML = `
+                        <div class="address-line"><i class="fas fa-address-card"></i> ${data.address}</div>
+                    `;
+                    addressInfo.classList.add('show');
+                }
+            }
+            
+            // Remplir l'éditeur enrichi
+            richNotes.innerHTML = data.notes || '';
+            notesHiddenInput.value = data.notes || '';
+            
+            // Activer le mode édition
+            editingActivityIdInput.value = data.id;
+            activityFormMode.style.display = 'block';
+            activityFormMode.classList.add('edit-mode');
+            activityFormTitle.textContent = 'Modifier une activité importée';
+            cancelActivityEditBtn.style.display = 'flex';
+            document.getElementById('saveActivityBtn').innerHTML = '<i class="fas fa-save"></i> Mettre à jour';
+            
+            showNotification("Première activité importée chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
+        }
+        
+        // Bouton pour charger le premier élément importé
+        loadFirstBtn.addEventListener('click', function() {
+            if (lastImportedData && lastImportedData.length > 0 && !isActivityData) {
+                loadPreachingFromImportedData(lastImportedData[0]);
+            } else {
+                showNotification("Aucune donnée de prédication importée à charger", "warning");
+            }
+        });
+        
+        // Bouton pour charger le premier élément d'activité importé
+        activityLoadFirstBtn.addEventListener('click', function() {
+            if (lastImportedData && lastImportedData.length > 0 && isActivityData) {
+                loadActivityFromImportedData(lastImportedData[0]);
+            } else {
+                showNotification("Aucune donnée d'activité importée à charger", "warning");
+            }
+        });
+        
+        // Bouton pour voir tous les éléments importés
+        loadAllBtn.addEventListener('click', function() {
+            if (lastImportedData && lastImportedData.length > 0 && !isActivityData) {
+                // Basculer vers l'onglet liste
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                document.querySelector('.tab[data-tab="liste"]').classList.add('active');
+                document.getElementById('liste-tab').classList.add('active');
+                
+                showNotification(`Affichage de ${lastImportedData.length} prédications importées dans la liste`, "info");
+            } else {
+                showNotification("Aucune donnée de prédication importée à afficher", "warning");
+            }
+        });
+        
+        // Bouton pour voir tous les éléments d'activité importés
+        activityLoadAllBtn.addEventListener('click', function() {
+            if (lastImportedData && lastImportedData.length > 0 && isActivityData) {
+                // L'onglet cahier affiche déjà les activités
+                showNotification(`${lastImportedData.length} activités importées ajoutées à la liste`, "info");
+            } else {
+                showNotification("Aucune donnée d'activité importée à afficher", "warning");
+            }
         });
         
         // Fonction pour envoyer via WhatsApp
@@ -2216,6 +2592,44 @@
             showNotification("Formulaire effacé", "info");
         });
         
+        // Fonction pour annuler l'édition dans le formulaire
+        cancelEditBtn.addEventListener('click', cancelEdit);
+        
+        function cancelEdit() {
+            editingIdInput.value = '';
+            formMode.style.display = 'none';
+            formMode.classList.remove('edit-mode');
+            formTitle.textContent = 'Nouvelle prédication';
+            cancelEditBtn.style.display = 'none';
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Enregistrer';
+            
+            // Réinitialiser le formulaire
+            form.reset();
+            
+            // Réinitialiser la date à aujourd'hui
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            showNotification("Mode édition annulé", "info");
+        }
+        
+        // Fonction pour annuler l'édition d'activité dans le formulaire
+        cancelActivityEditBtn.addEventListener('click', cancelActivityEdit);
+        
+        function cancelActivityEdit() {
+            editingActivityIdInput.value = '';
+            activityFormMode.style.display = 'none';
+            activityFormMode.classList.remove('edit-mode');
+            activityFormTitle.textContent = 'Nouvelle entrée dans le cahier d\'activité';
+            cancelActivityEditBtn.style.display = 'none';
+            document.getElementById('saveActivityBtn').innerHTML = '<i class="fas fa-save"></i> Ajouter au cahier';
+            
+            // Réinitialiser le formulaire
+            resetActivityForm();
+            
+            showNotification("Mode édition annulé", "info");
+        }
+        
         // Fonction pour mettre à jour la liste des prédications
         function updatePreachingList() {
             if (preachings.length === 0) {
@@ -2260,56 +2674,9 @@
                             <button class="btn-load-form" onclick="loadPreachingToForm('${preaching.id}')">
                                 <i class="fas fa-edit"></i> Charger dans le formulaire
                             </button>
-                            <button class="btn-edit" onclick="editPreaching('${preaching.id}')">
-                                <i class="fas fa-pencil-alt"></i> Modifier sur place
-                            </button>
                             <button class="btn-delete" onclick="deletePreaching('${preaching.id}')">
                                 <i class="fas fa-trash"></i> Supprimer
                             </button>
-                        </div>
-                        
-                        <div class="edit-form" id="edit-form-${preaching.id}">
-                            <h4><i class="fas fa-pencil-alt"></i> Modifier cette prédication</h4>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Date de prédication</label>
-                                    <input type="date" id="edit-date-${preaching.id}" value="${preaching.date}">
-                                </div>
-                                <div class="form-group">
-                                    <label>Lieu de prédication</label>
-                                    <input type="text" id="edit-location-${preaching.id}" value="${preaching.location}">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Groupe de prédication</label>
-                                    <select id="edit-group-${preaching.id}">
-                                        <option value="Groupe 1" ${preaching.group === 'Groupe 1' ? 'selected' : ''}>Groupe 1</option>
-                                        <option value="Groupe 2" ${preaching.group === 'Groupe 2' ? 'selected' : ''}>Groupe 2</option>
-                                        <option value="Groupe 3" ${preaching.group === 'Groupe 3' ? 'selected' : ''}>Groupe 3</option>
-                                        <option value="Groupe 4" ${preaching.group === 'Groupe 4' ? 'selected' : ''}>Groupe 4</option>
-                                        <option value="Groupe 5" ${preaching.group === 'Groupe 5' ? 'selected' : ''}>Groupe 5</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Quartier</label>
-                                    <input type="text" id="edit-neighborhood-${preaching.id}" value="${preaching.neighborhood}">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Prédication / Notes</label>
-                                    <textarea id="edit-preaching-${preaching.id}" rows="3">${preaching.preaching || ''}</textarea>
-                                </div>
-                            </div>
-                            <div class="edit-actions">
-                                <button class="btn-save-edit" onclick="savePreachingEdit('${preaching.id}')">
-                                    <i class="fas fa-save"></i> Enregistrer
-                                </button>
-                                <button class="btn-cancel-edit" onclick="cancelPreachingEdit('${preaching.id}')">
-                                    <i class="fas fa-times"></i> Annuler
-                                </button>
-                            </div>
                         </div>
                     </div>
                 `;
@@ -2357,100 +2724,6 @@
             showNotification("Prédication chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
         };
         
-        // Fonction pour annuler l'édition dans le formulaire
-        cancelEditBtn.addEventListener('click', cancelEdit);
-        
-        function cancelEdit() {
-            editingIdInput.value = '';
-            formMode.style.display = 'none';
-            formMode.classList.remove('edit-mode');
-            formTitle.textContent = 'Nouvelle prédication';
-            cancelEditBtn.style.display = 'none';
-            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Enregistrer';
-            
-            // Réinitialiser le formulaire
-            form.reset();
-            
-            // Réinitialiser la date à aujourd'hui
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date').value = today;
-            
-            showNotification("Mode édition annulé", "info");
-        }
-        
-        // Fonction pour annuler l'édition d'activité dans le formulaire
-        cancelActivityEditBtn.addEventListener('click', cancelActivityEdit);
-        
-        function cancelActivityEdit() {
-            editingActivityIdInput.value = '';
-            activityFormMode.style.display = 'none';
-            activityFormMode.classList.remove('edit-mode');
-            activityFormTitle.textContent = 'Nouvelle entrée dans le cahier d\'activité';
-            cancelActivityEditBtn.style.display = 'none';
-            document.getElementById('saveActivityBtn').innerHTML = '<i class="fas fa-save"></i> Ajouter au cahier';
-            
-            // Réinitialiser le formulaire
-            resetActivityForm();
-            
-            showNotification("Mode édition annulé", "info");
-        }
-        
-        // Fonction pour éditer une prédication sur place
-        window.editPreaching = function(id) {
-            const item = document.querySelector(`.list-item[data-id="${id}"]`);
-            const editForm = document.getElementById(`edit-form-${id}`);
-            
-            // Basculer l'affichage
-            item.classList.add('editing');
-            editForm.style.display = 'block';
-            
-            showNotification("Mode édition sur place activé", "info");
-        };
-        
-        // Fonction pour sauvegarder les modifications d'une prédication sur place
-        window.savePreachingEdit = function(id) {
-            // Récupérer les valeurs modifiées
-            const date = document.getElementById(`edit-date-${id}`).value;
-            const location = document.getElementById(`edit-location-${id}`).value;
-            const group = document.getElementById(`edit-group-${id}`).value;
-            const neighborhood = document.getElementById(`edit-neighborhood-${id}`).value;
-            const preaching = document.getElementById(`edit-preaching-${id}`).value;
-            
-            // Trouver l'index de la prédication
-            const index = preachings.findIndex(p => p.id == id);
-            
-            if (index !== -1) {
-                // Mettre à jour les valeurs
-                preachings[index].date = date;
-                preachings[index].location = location;
-                preachings[index].group = group;
-                preachings[index].neighborhood = neighborhood;
-                preachings[index].preaching = preaching;
-                preachings[index].updatedAt = new Date().toISOString();
-                
-                // Sauvegarder dans le localStorage
-                localStorage.setItem('preachings', JSON.stringify(preachings));
-                
-                // Mettre à jour l'affichage
-                updatePreachingList();
-                updateStatistics();
-                
-                showNotification("Prédication modifiée avec succès!", "success");
-            }
-        };
-        
-        // Fonction pour annuler l'édition d'une prédication sur place
-        window.cancelPreachingEdit = function(id) {
-            const item = document.querySelector(`.list-item[data-id="${id}"]`);
-            const editForm = document.getElementById(`edit-form-${id}`);
-            
-            // Désactiver le mode édition
-            item.classList.remove('editing');
-            editForm.style.display = 'none';
-            
-            showNotification("Modification annulée", "info");
-        };
-        
         // Fonction pour supprimer une prédication
         window.deletePreaching = function(id) {
             if (confirm("Voulez-vous vraiment supprimer cette prédication ?")) {
@@ -2492,6 +2765,7 @@
                 const isPast = visitDate < now;
                 const statusClass = isPast ? 'status-pending' : 'status-pending';
                 const statusText = isPast ? 'En attente' : 'À venir';
+                const isImported = activity.imported || false;
                 
                 return `
                     <div class="activity-item">
@@ -2499,6 +2773,7 @@
                             <div class="activity-person">
                                 <i class="fas fa-user"></i> ${activity.personName}
                                 <span class="status-badge ${statusClass}">${statusText}</span>
+                                ${isImported ? '<span class="imported-badge">Importé</span>' : ''}
                             </div>
                             <div class="activity-date">
                                 <i class="fas fa-calendar"></i> ${activity.nextVisitDate}
