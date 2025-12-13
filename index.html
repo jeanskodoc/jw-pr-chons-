@@ -1093,13 +1093,212 @@
             display: block;
             animation: fadeIn 0.5s ease;
         }
+        
+        /* Styles pour l'authentification */
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .auth-header p {
+            color: #64748b;
+        }
+        
+        .auth-form {
+            margin-top: 20px;
+        }
+        
+        .auth-form-group {
+            margin-bottom: 20px;
+        }
+        
+        .auth-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .auth-form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .auth-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .auth-error {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .locked-tab {
+            position: relative;
+        }
+        
+        .locked-tab::after {
+            content: "🔒";
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        .login-prompt {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        
+        .login-prompt i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+        
+        .login-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .access-denied {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        .access-denied h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Interface d'authentification -->
+    <div id="authContainer" class="auth-container" style="display: none;">
+        <div class="auth-header">
+            <div class="jw-logo" style="width: 60px; height: 60px; line-height: 60px; font-size: 2.5rem; margin-bottom: 15px;">
+                <span>JW</span>
+            </div>
+            <h2>Accès Protégé</h2>
+            <p>Veuillez vous identifier pour accéder à l'onglet RDV</p>
+        </div>
+        
+        <form id="authForm">
+            <div class="auth-form-group">
+                <label for="username"><i class="fas fa-user"></i> Identifiant</label>
+                <input type="text" id="username" name="username" placeholder="Entrez votre identifiant" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" required>
+            </div>
+            
+            <button type="submit" class="auth-btn">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+            </button>
+            
+            <div id="authError" class="auth-error">
+                <i class="fas fa-exclamation-circle"></i> Identifiant ou mot de passe incorrect
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 0.9rem; color: #64748b; text-align: center;">
+                <p><strong>Identifiant:</strong> KARA NORD</p>
+                <p><strong>Mot de passe:</strong> KARA1@</p>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Interface principale (cachée par défaut) -->
+    <div id="mainContainer" class="container" style="display: none;">
         <header>
             <div class="jw-decoration left">JW</div>
             <div class="jw-decoration right">JW</div>
+            
+            <div id="userInfo" class="user-info" style="display: none;">
+                <i class="fas fa-user-circle"></i>
+                <span id="currentUser"></span>
+                <button type="button" id="logoutBtn" class="logout-btn" title="Se déconnecter">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
             
             <div class="jw-logo">
                 <span>JW</span>
@@ -1109,7 +1308,7 @@
         </header>
         
         <div class="tabs-container">
-            <div class="tab active" data-tab="rdv">
+            <div class="tab active" data-tab="rdv" id="rdvTab">
                 <i class="fas fa-calendar-check"></i> RDV
             </div>
             <div class="tab" data-tab="cahier">
@@ -1123,128 +1322,141 @@
             </div>
         </div>
         
-        <!-- Onglet RDV -->
+        <!-- Onglet RDV (protégé) -->
         <div id="rdv-tab" class="tab-content active">
-            <div class="form-header">
-                <div class="form-title">
-                    <i class="fas fa-calendar-check"></i>
-                    <span id="formTitle">Nouvelle prédication</span>
-                </div>
-                <div id="formMode" class="form-mode-indicator" style="display: none;">
-                    Mode édition
-                </div>
+            <!-- Message d'accès refusé (visible uniquement si non authentifié) -->
+            <div id="accessDenied" class="access-denied" style="display: none;">
+                <h4><i class="fas fa-lock"></i> Accès Restreint</h4>
+                <p>L'accès à l'onglet RDV est réservé aux membres autorisés du groupe KARA NORD.</p>
+                <p>Veuillez vous connecter pour accéder à cette fonctionnalité.</p>
+                <button type="button" id="loginFromDeniedBtn" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
             </div>
             
-            <div class="auto-load-options" id="autoLoadOptions" style="display: none;">
-                <h4><i class="fas fa-file-import"></i> Fichier JSON importé</h4>
-                <div class="auto-load-checkbox">
-                    <input type="checkbox" id="autoLoadCheckbox" checked>
-                    <label for="autoLoadCheckbox">Charger automatiquement le premier élément dans le formulaire</label>
-                </div>
-                <div>
-                    <button type="button" id="loadFirstBtn" class="load-first-btn">
-                        <i class="fas fa-arrow-right"></i> Charger le premier élément
-                    </button>
-                    <button type="button" id="loadAllBtn" class="load-all-btn">
-                        <i class="fas fa-list"></i> Voir tous les éléments
-                    </button>
-                </div>
-                <div class="json-preview" id="jsonPreview">
-                    <!-- Aperçu JSON -->
-                </div>
-            </div>
-            
-            <form id="preachingForm">
-                <input type="hidden" id="editingId" name="editingId" value="">
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="date">
-                            <i class="fas fa-calendar-alt"></i> Date de prédication
-                        </label>
-                        <input type="date" id="date" name="date" required>
+            <!-- Contenu RDV (visible uniquement si authentifié) -->
+            <div id="rdvContent" style="display: none;">
+                <div class="form-header">
+                    <div class="form-title">
+                        <i class="fas fa-calendar-check"></i>
+                        <span id="formTitle">Nouvelle prédication</span>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="location">
-                            <i class="fas fa-map-marker-alt"></i> Lieu de prédication
-                        </label>
-                        <input type="text" id="location" name="location" placeholder="Entrez le lieu de prédication" required>
+                    <div id="formMode" class="form-mode-indicator" style="display: none;">
+                        Mode édition
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="group">
-                            <i class="fas fa-users"></i> Groupe de prédication
-                        </label>
-                        <select id="group" name="group" required>
-                            <option value="">Sélectionnez un groupe</option>
-                            <option value="Groupe 1">Groupe 1</option>
-                            <option value="Groupe 2">Groupe 2</option>
-                            <option value="Groupe 3">Groupe 3</option>
-                            <option value="Groupe 4">Groupe 4</option>
-                            <option value="Groupe 5">Groupe 5</option>
-                        </select>
+                <div class="auto-load-options" id="autoLoadOptions" style="display: none;">
+                    <h4><i class="fas fa-file-import"></i> Fichier JSON importé</h4>
+                    <div class="auto-load-checkbox">
+                        <input type="checkbox" id="autoLoadCheckbox" checked>
+                        <label for="autoLoadCheckbox">Charger automatiquement le premier élément dans le formulaire</label>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="neighborhood">
-                            <i class="fas fa-city"></i> Quartier
-                        </label>
-                        <input type="text" id="neighborhood" name="neighborhood" placeholder="Entrez le quartier" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="preaching">
-                            <span class="jw-form-icon">JW</span> Prédication / Notes
-                        </label>
-                        <textarea id="preaching" name="preaching" rows="5" placeholder="Notes de prédication, sujets abordés, observations..."></textarea>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><i class="fas fa-map-pin"></i> Coordonnées GPS (automatiques)</label>
-                        <div class="gps-coordinates">
-                            <div>
-                                <span id="latitude">Latitude: En attente de localisation...</span>
-                                <span id="longitude">Longitude: En attente de localisation...</span>
-                            </div>
-                            <div>
-                                <span id="gpsStatus" class="gps-status inactive">GPS non activé</span>
-                            </div>
-                        </div>
-                        <button type="button" id="getLocationBtn" class="btn btn-primary" style="margin-top: 10px; padding: 10px 15px;">
-                            <i class="fas fa-satellite"></i> Obtenir la localisation
+                    <div>
+                        <button type="button" id="loadFirstBtn" class="load-first-btn">
+                            <i class="fas fa-arrow-right"></i> Charger le premier élément
+                        </button>
+                        <button type="button" id="loadAllBtn" class="load-all-btn">
+                            <i class="fas fa-list"></i> Voir tous les éléments
                         </button>
                     </div>
+                    <div class="json-preview" id="jsonPreview">
+                        <!-- Aperçu JSON -->
+                    </div>
                 </div>
                 
-                <div class="action-buttons">
-                    <button type="button" id="importBtn" class="btn btn-import">
-                        <i class="fas fa-file-import"></i> Importer JSON
-                    </button>
+                <form id="preachingForm">
+                    <input type="hidden" id="editingId" name="editingId" value="">
                     
-                    <button type="button" id="exportBtn" class="btn btn-export">
-                        <i class="fas fa-file-export"></i> Exporter JSON
-                    </button>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">
+                                <i class="fas fa-calendar-alt"></i> Date de prédication
+                            </label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="location">
+                                <i class="fas fa-map-marker-alt"></i> Lieu de prédication
+                            </label>
+                            <input type="text" id="location" name="location" placeholder="Entrez le lieu de prédication" required>
+                        </div>
+                    </div>
                     
-                    <button type="button" id="whatsappBtn" class="btn btn-whatsapp">
-                        <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
-                    </button>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="group">
+                                <i class="fas fa-users"></i> Groupe de prédication
+                            </label>
+                            <select id="group" name="group" required>
+                                <option value="">Sélectionnez un groupe</option>
+                                <option value="Groupe 1">Groupe 1</option>
+                                <option value="Groupe 2">Groupe 2</option>
+                                <option value="Groupe 3">Groupe 3</option>
+                                <option value="Groupe 4">Groupe 4</option>
+                                <option value="Groupe 5">Groupe 5</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="neighborhood">
+                                <i class="fas fa-city"></i> Quartier
+                            </label>
+                            <input type="text" id="neighborhood" name="neighborhood" placeholder="Entrez le quartier" required>
+                        </div>
+                    </div>
                     
-                    <button type="submit" id="saveBtn" class="btn btn-success">
-                        <i class="fas fa-save"></i> Enregistrer
-                    </button>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="preaching">
+                                <span class="jw-form-icon">JW</span> Prédication / Notes
+                            </label>
+                            <textarea id="preaching" name="preaching" rows="5" placeholder="Notes de prédication, sujets abordés, observations..."></textarea>
+                        </div>
+                    </div>
                     
-                    <button type="button" id="cancelEditBtn" class="btn" style="background-color: #7f8c8d; color: white; display: none;">
-                        <i class="fas fa-times"></i> Annuler l'édition
-                    </button>
-                </div>
-            </form>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-pin"></i> Coordonnées GPS (automatiques)</label>
+                            <div class="gps-coordinates">
+                                <div>
+                                    <span id="latitude">Latitude: En attente de localisation...</span>
+                                    <span id="longitude">Longitude: En attente de localisation...</span>
+                                </div>
+                                <div>
+                                    <span id="gpsStatus" class="gps-status inactive">GPS non activé</span>
+                                </div>
+                            </div>
+                            <button type="button" id="getLocationBtn" class="btn btn-primary" style="margin-top: 10px; padding: 10px 15px;">
+                                <i class="fas fa-satellite"></i> Obtenir la localisation
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="button" id="importBtn" class="btn btn-import">
+                            <i class="fas fa-file-import"></i> Importer JSON
+                        </button>
+                        
+                        <button type="button" id="exportBtn" class="btn btn-export">
+                            <i class="fas fa-file-export"></i> Exporter JSON
+                        </button>
+                        
+                        <button type="button" id="whatsappBtn" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
+                        </button>
+                        
+                        <button type="submit" id="saveBtn" class="btn btn-success">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                        
+                        <button type="button" id="cancelEditBtn" class="btn" style="background-color: #7f8c8d; color: white; display: none;">
+                            <i class="fas fa-times"></i> Annuler l'édition
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
         
         <!-- Onglet Cahier d'activité -->
@@ -1542,7 +1754,22 @@
     </div>
     
     <script>
-        // Éléments du DOM
+        // Éléments du DOM pour l'authentification
+        const authContainer = document.getElementById('authContainer');
+        const mainContainer = document.getElementById('mainContainer');
+        const authForm = document.getElementById('authForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const authError = document.getElementById('authError');
+        const currentUser = document.getElementById('currentUser');
+        const userInfo = document.getElementById('userInfo');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const accessDenied = document.getElementById('accessDenied');
+        const rdvContent = document.getElementById('rdvContent');
+        const rdvTab = document.getElementById('rdvTab');
+        const loginFromDeniedBtn = document.getElementById('loginFromDeniedBtn');
+        
+        // Éléments du DOM principaux
         const form = document.getElementById('preachingForm');
         const activityForm = document.getElementById('activityForm');
         const latitudeElement = document.getElementById('latitude');
@@ -1613,8 +1840,166 @@
         let lastImportedData = null; // Dernières données importées
         let isActivityData = false; // Si les données importées sont pour les activités
         
+        // Variables d'authentification
+        let isAuthenticated = false;
+        let authenticatedUser = '';
+        
+        // Identifiants de connexion (KARA NORD)
+        const VALID_USERNAME = "KARA NORD";
+        const VALID_PASSWORD = "KARA1@";
+        
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier si l'utilisateur est déjà authentifié
+            checkAuthentication();
+            
+            // Initialiser les autres fonctionnalités
+            initApplication();
+        });
+        
+        // Vérifier l'authentification
+        function checkAuthentication() {
+            const savedAuth = localStorage.getItem('prechons_auth');
+            if (savedAuth) {
+                try {
+                    const authData = JSON.parse(savedAuth);
+                    if (authData.authenticated && authData.user === VALID_USERNAME) {
+                        isAuthenticated = true;
+                        authenticatedUser = authData.user;
+                        showMainInterface();
+                    } else {
+                        showAuthInterface();
+                    }
+                } catch (e) {
+                    showAuthInterface();
+                }
+            } else {
+                showAuthInterface();
+            }
+        }
+        
+        // Afficher l'interface d'authentification
+        function showAuthInterface() {
+            authContainer.style.display = 'block';
+            mainContainer.style.display = 'none';
+            
+            // Réinitialiser le formulaire
+            authForm.reset();
+            authError.style.display = 'none';
+            
+            // Focus sur le champ username
+            setTimeout(() => {
+                usernameInput.focus();
+            }, 100);
+        }
+        
+        // Afficher l'interface principale
+        function showMainInterface() {
+            authContainer.style.display = 'none';
+            mainContainer.style.display = 'block';
+            
+            // Afficher les informations utilisateur
+            currentUser.textContent = authenticatedUser;
+            userInfo.style.display = 'flex';
+            
+            // Mettre à jour l'affichage de l'onglet RDV
+            updateRdvTabDisplay();
+            
+            // Initialiser l'application
+            initApplicationFunctions();
+        }
+        
+        // Mettre à jour l'affichage de l'onglet RDV
+        function updateRdvTabDisplay() {
+            if (isAuthenticated) {
+                // Afficher le contenu RDV
+                accessDenied.style.display = 'none';
+                rdvContent.style.display = 'block';
+                
+                // Retirer l'icône de verrouillage
+                rdvTab.classList.remove('locked-tab');
+            } else {
+                // Afficher le message d'accès refusé
+                accessDenied.style.display = 'block';
+                rdvContent.style.display = 'none';
+                
+                // Ajouter l'icône de verrouillage
+                rdvTab.classList.add('locked-tab');
+            }
+        }
+        
+        // Initialiser l'application
+        function initApplication() {
+            // Gestion du formulaire d'authentification
+            authForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+                
+                // Vérifier les identifiants
+                if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                    // Authentification réussie
+                    isAuthenticated = true;
+                    authenticatedUser = username;
+                    
+                    // Sauvegarder l'authentification
+                    localStorage.setItem('prechons_auth', JSON.stringify({
+                        authenticated: true,
+                        user: username,
+                        timestamp: new Date().toISOString()
+                    }));
+                    
+                    // Afficher l'interface principale
+                    showMainInterface();
+                    
+                    // Afficher une notification
+                    showNotification(`Bienvenue ${authenticatedUser} !`, "success");
+                } else {
+                    // Authentification échouée
+                    authError.style.display = 'block';
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    
+                    // Secouer le formulaire pour l'effet visuel
+                    authContainer.style.animation = 'none';
+                    setTimeout(() => {
+                        authContainer.style.animation = 'shake 0.5s';
+                    }, 10);
+                }
+            });
+            
+            // Gestion de la déconnexion
+            logoutBtn.addEventListener('click', function() {
+                if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
+                    // Supprimer l'authentification
+                    localStorage.removeItem('prechons_auth');
+                    
+                    // Réinitialiser les variables
+                    isAuthenticated = false;
+                    authenticatedUser = '';
+                    
+                    // Afficher l'interface d'authentification
+                    showAuthInterface();
+                    
+                    // Afficher une notification
+                    showNotification("Vous avez été déconnecté avec succès", "info");
+                }
+            });
+            
+            // Bouton de connexion depuis le message d'accès refusé
+            loginFromDeniedBtn.addEventListener('click', function() {
+                showAuthInterface();
+            });
+            
+            // Initialiser les autres fonctionnalités si authentifié
+            if (isAuthenticated) {
+                initApplicationFunctions();
+            }
+        }
+        
+        // Initialiser les fonctionnalités de l'application
+        function initApplicationFunctions() {
             updatePreachingList();
             updateActivityList();
             updateStatistics();
@@ -1641,12 +2026,19 @@
                     searchQuery.focus();
                 }, 300);
             });
-        });
+        }
         
         // Gestion des onglets
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const tabId = tab.getAttribute('data-tab');
+                
+                // Vérifier l'accès à l'onglet RDV
+                if (tabId === 'rdv' && !isAuthenticated) {
+                    // Afficher le message d'accès refusé
+                    updateRdvTabDisplay();
+                    return;
+                }
                 
                 // Désactiver tous les onglets
                 tabs.forEach(t => t.classList.remove('active'));
@@ -2061,6 +2453,12 @@
         
         // Fonction pour exporter les données du formulaire courant au format JSON
         exportBtn.addEventListener('click', function() {
+            // Vérifier l'authentification
+            if (!isAuthenticated) {
+                showNotification("Veuillez vous connecter pour accéder à cette fonctionnalité", "warning");
+                return;
+            }
+            
             // Récupérer les données du formulaire
             const formData = new FormData(form);
             const data = {};
@@ -2106,6 +2504,12 @@
         
         // Fonction pour importer un fichier JSON
         importBtn.addEventListener('click', function() {
+            // Vérifier l'authentification
+            if (!isAuthenticated) {
+                showNotification("Veuillez vous connecter pour accéder à cette fonctionnalité", "warning");
+                return;
+            }
+            
             fileInput.click();
         });
         
@@ -2389,6 +2793,12 @@
         
         // Fonction pour envoyer via WhatsApp
         whatsappBtn.addEventListener('click', function() {
+            // Vérifier l'authentification
+            if (!isAuthenticated) {
+                showNotification("Veuillez vous connecter pour accéder à cette fonctionnalité", "warning");
+                return;
+            }
+            
             // Récupérer les données du formulaire
             const formData = new FormData(form);
             const data = {};
@@ -2440,6 +2850,12 @@
         // Gestion de la soumission du formulaire de prédication
         form.addEventListener('submit', function(event) {
             event.preventDefault();
+            
+            // Vérifier l'authentification
+            if (!isAuthenticated) {
+                showNotification("Veuillez vous connecter pour accéder à cette fonctionnalité", "warning");
+                return;
+            }
             
             // Récupérer les données du formulaire
             const formData = new FormData(form);
@@ -2685,6 +3101,12 @@
         
         // Fonction pour charger une prédication dans le formulaire
         window.loadPreachingToForm = function(id) {
+            // Vérifier l'authentification
+            if (!isAuthenticated) {
+                showNotification("Veuillez vous connecter pour accéder à cette fonctionnalité", "warning");
+                return;
+            }
+            
             const preaching = preachings.find(p => p.id == id);
             if (!preaching) return;
             
@@ -2726,6 +3148,12 @@
         
         // Fonction pour supprimer une prédication
         window.deletePreaching = function(id) {
+            // Vérifier l'authentification
+            if (!isAuthenticated) {
+                showNotification("Veuillez vous connecter pour accéder à cette fonctionnalité", "warning");
+                return;
+            }
+            
             if (confirm("Voulez-vous vraiment supprimer cette prédication ?")) {
                 // Supprimer de la liste
                 preachings = preachings.filter(p => p.id != id);
@@ -2960,6 +3388,17 @@
                 `;
             }).join('');
         }
+        
+        // Ajouter l'animation de secousse pour l'erreur d'authentification
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
