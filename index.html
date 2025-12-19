@@ -21,7 +21,7 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background-color: white;
             border-radius: 12px;
@@ -299,6 +299,26 @@
         
         .btn-gps:hover {
             background-color: #1a252f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-map {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-map:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .btn-position {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-position:hover {
+            background-color: #2980b9;
             transform: translateY(-2px);
         }
         
@@ -1247,6 +1267,112 @@
             align-items: center;
             gap: 10px;
         }
+        
+        /* Styles pour l'onglet CARTE */
+        .carte-form {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .carte-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e74c3c;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .carte-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: flex-start;
+        }
+        
+        .carte-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        
+        .carte-group {
+            color: #64748b;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+        
+        .carte-contact {
+            color: #27ae60;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .carte-congregation {
+            color: #3498db;
+            margin: 8px 0;
+            font-weight: 600;
+        }
+        
+        .carte-address {
+            color: #7f8c8d;
+            margin: 8px 0;
+            font-style: italic;
+        }
+        
+        .carte-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .carte-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .map-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        .map-buttons button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            min-width: 150px;
+        }
+        
+        .whatsapp-contact {
+            color: #25D366;
+            font-weight: bold;
+        }
+        
+        .phone-contact {
+            color: #3498db;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -1313,6 +1439,9 @@
             </div>
             <div class="tab" data-tab="cahier">
                 <i class="fas fa-book"></i> Cahier d'activité
+            </div>
+            <div class="tab" data-tab="carte">
+                <i class="fas fa-map"></i> CARTE
             </div>
             <div class="tab" data-tab="liste">
                 <i class="fas fa-list"></i> Liste
@@ -1626,6 +1755,14 @@
                     </div>
                     
                     <div class="action-buttons">
+                        <button type="button" id="activityImportBtn" class="btn btn-import">
+                            <i class="fas fa-file-import"></i> Importer JSON
+                        </button>
+                        
+                        <button type="button" id="activityExportBtn" class="btn btn-export">
+                            <i class="fas fa-file-export"></i> Exporter JSON
+                        </button>
+                        
                         <button type="submit" id="saveActivityBtn" class="btn btn-success">
                             <i class="fas fa-save"></i> Ajouter au cahier
                         </button>
@@ -1651,6 +1788,175 @@
                     <i class="fas fa-book-open"></i>
                     <h3>Cahier d'activité vide</h3>
                     <p>Ajoutez votre première entrée pour commencer à suivre vos activités</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NOUVEL ONGLET CARTE -->
+        <div id="carte-tab" class="tab-content">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-map"></i>
+                    <span id="carteFormTitle">Nouvelle fiche frère/sœur</span>
+                </div>
+                <div id="carteFormMode" class="form-mode-indicator" style="display: none;">
+                    Mode édition
+                </div>
+            </div>
+            
+            <div class="auto-load-options" id="carteAutoLoadOptions" style="display: none;">
+                <h4><i class="fas fa-file-import"></i> Fichier JSON importé (Carte)</h4>
+                <div class="auto-load-checkbox">
+                    <input type="checkbox" id="carteAutoLoadCheckbox" checked>
+                    <label for="carteAutoLoadCheckbox">Charger automatiquement le premier élément dans le formulaire</label>
+                </div>
+                <div>
+                    <button type="button" id="carteLoadFirstBtn" class="load-first-btn">
+                        <i class="fas fa-arrow-right"></i> Charger le premier élément
+                    </button>
+                    <button type="button" id="carteLoadAllBtn" class="load-all-btn">
+                        <i class="fas fa-list"></i> Voir tous les éléments
+                    </button>
+                </div>
+                <div class="json-preview" id="carteJsonPreview">
+                    <!-- Aperçu JSON -->
+                </div>
+            </div>
+            
+            <div class="carte-form">
+                <form id="carteForm">
+                    <input type="hidden" id="editingCarteId" name="editingCarteId" value="">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="carteName"><i class="fas fa-user"></i> Nom et prénom</label>
+                            <input type="text" id="carteName" name="carteName" placeholder="Nom complet du frère/soeur" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="carteType"><i class="fas fa-user-tag"></i> Statut</label>
+                            <select id="carteType" name="carteType" required>
+                                <option value="">Sélectionnez le statut</option>
+                                <option value="Frère">Frère</option>
+                                <option value="Sœur">Sœur</option>
+                                <option value="Famille">Famille</option>
+                                <option value="Ancien">Ancien</option>
+                                <option value="Servant Ministériel">Servant Ministériel</option>
+                                <option value="Prédicateur">Prédicateur</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="carteGroup"><i class="fas fa-users"></i> Groupe</label>
+                            <select id="carteGroup" name="carteGroup" required>
+                                <option value="">Sélectionnez un groupe</option>
+                                <option value="Groupe 1">Groupe 1</option>
+                                <option value="Groupe 2">Groupe 2</option>
+                                <option value="Groupe 3">Groupe 3</option>
+                                <option value="Groupe 4">Groupe 4</option>
+                                <option value="Groupe 5">Groupe 5</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="carteCongregation"><i class="fas fa-church"></i> Congrégation</label>
+                            <input type="text" id="carteCongregation" name="carteCongregation" placeholder="Nom de la congrégation" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cartePhone"><i class="fas fa-phone"></i> Téléphone</label>
+                            <input type="tel" id="cartePhone" name="cartePhone" placeholder="Numéro de téléphone" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="carteWhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</label>
+                            <input type="tel" id="carteWhatsApp" name="carteWhatsApp" placeholder="Numéro WhatsApp (optionnel)">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="carteAddress"><i class="fas fa-map-marker-alt"></i> Adresse</label>
+                            <textarea id="carteAddress" name="carteAddress" rows="3" placeholder="Adresse complète" required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-pin"></i> Coordonnées GPS</label>
+                            <div class="gps-coordinates">
+                                <div>
+                                    <span id="carteLatitude">Latitude: En attente de localisation...</span>
+                                    <span id="carteLongitude">Longitude: En attente de localisation...</span>
+                                </div>
+                                <div>
+                                    <span id="carteGpsStatus" class="gps-status inactive">GPS non activé</span>
+                                </div>
+                            </div>
+                            <button type="button" id="getCarteLocationBtn" class="btn btn-primary" style="margin-top: 10px; padding: 10px 15px;">
+                                <i class="fas fa-satellite"></i> Obtenir la localisation
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="carteNotes"><i class="fas fa-sticky-note"></i> Notes supplémentaires</label>
+                            <textarea id="carteNotes" name="carteNotes" rows="4" placeholder="Informations complémentaires, observations..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="button" id="carteImportBtn" class="btn btn-import">
+                            <i class="fas fa-file-import"></i> Importer JSON
+                        </button>
+                        
+                        <button type="button" id="carteExportBtn" class="btn btn-export">
+                            <i class="fas fa-file-export"></i> Exporter JSON
+                        </button>
+                        
+                        <button type="button" id="carteWhatsAppBtn" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
+                        </button>
+                        
+                        <button type="submit" id="saveCarteBtn" class="btn btn-success">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                        
+                        <button type="button" id="cancelCarteEditBtn" class="btn" style="background-color: #7f8c8d; color: white; display: none;">
+                            <i class="fas fa-times"></i> Annuler l'édition
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Boutons pour les cartes -->
+                <div class="map-buttons">
+                    <button type="button" id="generateMapBtn" class="btn btn-map">
+                        <i class="fas fa-map-marked-alt"></i> Générer une carte
+                    </button>
+                    <button type="button" id="gpxBtn" class="btn btn-gps" onclick="window.open('https://play.google.com/store/apps/details?id=com.vecturagames.android.app.gpxviewer&pcampaignid=web_share', '_blank')">
+                        <i class="fas fa-map-signs"></i> GPX Viewer
+                    </button>
+                    <button type="button" id="positionBtn" class="btn btn-position" onclick="window.open('https://play.google.com/store/apps/details?id=com.location.test', '_blank')">
+                        <i class="fas fa-location-arrow"></i> Ma position
+                    </button>
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 20px; color: #2c3e50;">
+                <i class="fas fa-users"></i> Liste des frères et sœurs
+            </h3>
+            
+            <div id="carteList">
+                <!-- Les fiches seront ajoutées ici dynamiquement -->
+                <div class="empty-list">
+                    <i class="fas fa-map"></i>
+                    <h3>Aucune fiche enregistrée</h3>
+                    <p>Ajoutez votre première fiche frère/sœur pour commencer</p>
                 </div>
             </div>
         </div>
@@ -1722,15 +2028,21 @@
         
         <footer>
             <p>Application "Prêchons" - Suivi des activités de prédication</p>
-            <p>Numéro WhatsApp du groupe : <strong>92871605</strong></p>
+            <p>Numéro WhatsApp du groupe : <strong>+228 92871605</strong></p>
             <p>Recherche intelligente via : <strong>https://www.ia-elian.com/</strong></p>
         </footer>
     </div>
     
     <div id="notification" class="notification"></div>
     
-    <!-- Input caché pour l'import de fichier -->
+    <!-- Input caché pour l'import de fichier (principal) -->
     <input type="file" id="fileInput" accept=".json" style="display: none;">
+    
+    <!-- Input caché pour l'import de fichier (activités) -->
+    <input type="file" id="activityFileInput" accept=".json" style="display: none;">
+    
+    <!-- Input caché pour l'import de fichier (carte) -->
+    <input type="file" id="carteFileInput" accept=".json" style="display: none;">
     
     <!-- Modal pour les liens -->
     <div id="linkModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
@@ -1772,11 +2084,13 @@
         // Éléments du DOM principaux
         const form = document.getElementById('preachingForm');
         const activityForm = document.getElementById('activityForm');
+        const carteForm = document.getElementById('carteForm');
         const latitudeElement = document.getElementById('latitude');
         const longitudeElement = document.getElementById('longitude');
         const gpsStatusElement = document.getElementById('gpsStatus');
         const getLocationBtn = document.getElementById('getLocationBtn');
         const getActivityLocationBtn = document.getElementById('getActivityLocationBtn');
+        const getCarteLocationBtn = document.getElementById('getCarteLocationBtn');
         const insertGpsBtn = document.getElementById('insertGpsBtn');
         const getAddressBtn = document.getElementById('getAddressBtn');
         const importBtn = document.getElementById('importBtn');
@@ -1785,11 +2099,14 @@
         const searchBtn = document.getElementById('searchBtn');
         const searchQuery = document.getElementById('searchQuery');
         const fileInput = document.getElementById('fileInput');
+        const activityFileInput = document.getElementById('activityFileInput');
+        const carteFileInput = document.getElementById('carteFileInput');
         const notification = document.getElementById('notification');
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
         const preachingList = document.getElementById('preachingList');
         const activityList = document.getElementById('activityList');
+        const carteList = document.getElementById('carteList');
         const clearActivityFormBtn = document.getElementById('clearActivityForm');
         const richNotes = document.getElementById('richNotes');
         const notesHiddenInput = document.getElementById('notes');
@@ -1827,18 +2144,41 @@
         const activityLoadAllBtn = document.getElementById('activityLoadAllBtn');
         const activityJsonPreview = document.getElementById('activityJsonPreview');
         
+        // Éléments pour l'onglet CARTE
+        const carteFormTitle = document.getElementById('carteFormTitle');
+        const carteFormMode = document.getElementById('carteFormMode');
+        const cancelCarteEditBtn = document.getElementById('cancelCarteEditBtn');
+        const editingCarteIdInput = document.getElementById('editingCarteId');
+        const carteAutoLoadOptions = document.getElementById('carteAutoLoadOptions');
+        const carteAutoLoadCheckbox = document.getElementById('carteAutoLoadCheckbox');
+        const carteLoadFirstBtn = document.getElementById('carteLoadFirstBtn');
+        const carteLoadAllBtn = document.getElementById('carteLoadAllBtn');
+        const carteJsonPreview = document.getElementById('carteJsonPreview');
+        const carteImportBtn = document.getElementById('carteImportBtn');
+        const carteExportBtn = document.getElementById('carteExportBtn');
+        const carteWhatsAppBtn = document.getElementById('carteWhatsAppBtn');
+        const saveCarteBtn = document.getElementById('saveCarteBtn');
+        const generateMapBtn = document.getElementById('generateMapBtn');
+        const carteLatitudeElement = document.getElementById('carteLatitude');
+        const carteLongitudeElement = document.getElementById('carteLongitude');
+        const carteGpsStatusElement = document.getElementById('carteGpsStatus');
+        
         // Variables pour stocker les données
         let userLatitude = null;
         let userLongitude = null;
         let activityLatitude = null;
         let activityLongitude = null;
         let activityAddress = null;
+        let carteLatitude = null;
+        let carteLongitude = null;
         let preachings = JSON.parse(localStorage.getItem('preachings')) || [];
         let activities = JSON.parse(localStorage.getItem('activities')) || [];
+        let cartes = JSON.parse(localStorage.getItem('cartes')) || [];
         let currentLinkCommand = null;
         let importedData = []; // Stocker les données importées
         let lastImportedData = null; // Dernières données importées
         let isActivityData = false; // Si les données importées sont pour les activités
+        let isCarteData = false; // Si les données importées sont pour les cartes
         
         // Variables d'authentification
         let isAuthenticated = false;
@@ -2002,6 +2342,7 @@
         function initApplicationFunctions() {
             updatePreachingList();
             updateActivityList();
+            updateCarteList();
             updateStatistics();
             
             // Définir les dates par défaut
@@ -2026,6 +2367,499 @@
                     searchQuery.focus();
                 }, 300);
             });
+            
+            // Initialiser les boutons d'import/export pour l'onglet cahier
+            initActivityImportExport();
+            
+            // Initialiser les fonctionnalités de l'onglet CARTE
+            initCarteFunctions();
+        }
+        
+        // Initialiser les boutons d'import/export pour l'onglet cahier
+        function initActivityImportExport() {
+            // Bouton pour importer JSON pour les activités
+            activityImportBtn.addEventListener('click', function() {
+                activityFileInput.click();
+            });
+            
+            // Bouton pour exporter JSON des activités
+            activityExportBtn.addEventListener('click', exportActivityData);
+            
+            // Gérer l'import de fichier pour les activités
+            activityFileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        importedData = JSON.parse(e.target.result);
+                        lastImportedData = importedData; // Sauvegarder pour référence future
+                        
+                        // Vérifier si c'est un tableau
+                        if (!Array.isArray(importedData)) {
+                            // Si c'est un objet unique, le convertir en tableau
+                            importedData = [importedData];
+                            lastImportedData = importedData;
+                        }
+                        
+                        // Marquer ces données comme étant pour les activités
+                        isActivityData = true;
+                        isCarteData = false;
+                        
+                        // Ajouter un flag pour identifier les données importées
+                        importedData.forEach((item, index) => {
+                            item.imported = true;
+                            item.id = Date.now() + Math.random() + index; // ID unique
+                        });
+                        
+                        // Ajouter aux activités existantes
+                        activities = [...activities, ...importedData];
+                        
+                        // Sauvegarder dans le localStorage
+                        localStorage.setItem('activities', JSON.stringify(activities));
+                        
+                        // Mettre à jour l'affichage
+                        updateActivityList();
+                        
+                        // Afficher les options de chargement automatique
+                        activityAutoLoadOptions.style.display = 'block';
+                        updateJsonPreview(importedData, activityJsonPreview);
+                        
+                        // Basculer vers l'onglet cahier si la case est cochée
+                        if (activityAutoLoadCheckbox.checked && importedData.length > 0) {
+                            // Charger le premier élément dans le formulaire
+                            loadActivityFromImportedData(importedData[0]);
+                        }
+                        
+                        updateStatistics();
+                        
+                        showNotification(`Fichier JSON d'activités importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
+                        
+                    } catch (error) {
+                        console.error("Erreur lors de l'import du JSON:", error);
+                        showNotification("Erreur: le fichier JSON est invalide.", "error");
+                    }
+                };
+                
+                reader.readAsText(file);
+                
+                // Réinitialiser l'input file
+                event.target.value = '';
+            });
+        }
+        
+        // Initialiser les fonctionnalités de l'onglet CARTE
+        function initCarteFunctions() {
+            // Bouton pour obtenir la localisation GPS pour la carte
+            getCarteLocationBtn.addEventListener('click', getCarteLocation);
+            
+            // Bouton pour importer JSON pour les cartes
+            carteImportBtn.addEventListener('click', function() {
+                carteFileInput.click();
+            });
+            
+            // Bouton pour exporter JSON des cartes
+            carteExportBtn.addEventListener('click', exportCarteData);
+            
+            // Bouton pour envoyer via WhatsApp
+            carteWhatsAppBtn.addEventListener('click', sendCarteViaWhatsApp);
+            
+            // Bouton pour générer une carte
+            generateMapBtn.addEventListener('click', generateMap);
+            
+            // Gérer l'import de fichier pour les cartes
+            carteFileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        importedData = JSON.parse(e.target.result);
+                        lastImportedData = importedData; // Sauvegarder pour référence future
+                        
+                        // Vérifier si c'est un tableau
+                        if (!Array.isArray(importedData)) {
+                            // Si c'est un objet unique, le convertir en tableau
+                            importedData = [importedData];
+                            lastImportedData = importedData;
+                        }
+                        
+                        // Marquer ces données comme étant pour les cartes
+                        isCarteData = true;
+                        isActivityData = false;
+                        
+                        // Ajouter un flag pour identifier les données importées
+                        importedData.forEach((item, index) => {
+                            item.imported = true;
+                            item.id = Date.now() + Math.random() + index; // ID unique
+                        });
+                        
+                        // Ajouter aux cartes existantes
+                        cartes = [...cartes, ...importedData];
+                        
+                        // Sauvegarder dans le localStorage
+                        localStorage.setItem('cartes', JSON.stringify(cartes));
+                        
+                        // Mettre à jour l'affichage
+                        updateCarteList();
+                        
+                        // Afficher les options de chargement automatique
+                        carteAutoLoadOptions.style.display = 'block';
+                        updateCarteJsonPreview(importedData, carteJsonPreview);
+                        
+                        // Basculer vers l'onglet carte si la case est cochée
+                        if (carteAutoLoadCheckbox.checked && importedData.length > 0) {
+                            // Charger le premier élément dans le formulaire
+                            loadCarteFromImportedData(importedData[0]);
+                        }
+                        
+                        showNotification(`Fichier JSON de cartes importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
+                        
+                    } catch (error) {
+                        console.error("Erreur lors de l'import du JSON:", error);
+                        showNotification("Erreur: le fichier JSON est invalide.", "error");
+                    }
+                };
+                
+                reader.readAsText(file);
+                
+                // Réinitialiser l'input file
+                event.target.value = '';
+            });
+            
+            // Gestion de la soumission du formulaire de carte
+            carteForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Récupérer les données du formulaire
+                const formData = new FormData(carteForm);
+                const data = {};
+                
+                // Convertir FormData en objet
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+                
+                // Ajouter les coordonnées GPS
+                data.latitude = carteLatitude;
+                data.longitude = carteLongitude;
+                data.timestamp = new Date().toISOString();
+                
+                // Vérifier si on est en mode édition
+                const editingCarteId = editingCarteIdInput.value;
+                if (editingCarteId) {
+                    // Mode édition: mettre à jour l'existant
+                    data.id = editingCarteId;
+                    
+                    // Trouver l'index de la carte
+                    const index = cartes.findIndex(c => c.id == editingCarteId);
+                    
+                    if (index !== -1) {
+                        // Conserver les données existantes si non modifiées
+                        cartes[index] = {...cartes[index], ...data};
+                        showNotification("Fiche modifiée avec succès!", "success");
+                    }
+                    
+                    // Quitter le mode édition
+                    cancelCarteEdit();
+                } else {
+                    // Mode création: ajouter une nouvelle carte
+                    data.id = Date.now(); // ID unique
+                    
+                    // Ajouter à la liste des cartes
+                    cartes.push(data);
+                    showNotification("Fiche enregistrée avec succès!", "success");
+                }
+                
+                // Sauvegarder dans le localStorage
+                localStorage.setItem('cartes', JSON.stringify(cartes));
+                
+                // Mettre à jour l'affichage
+                updateCarteList();
+                
+                // Réinitialiser le formulaire si pas en mode édition
+                if (!editingCarteId) {
+                    carteForm.reset();
+                }
+            });
+            
+            // Bouton pour charger le premier élément importé (cartes)
+            carteLoadFirstBtn.addEventListener('click', function() {
+                if (lastImportedData && lastImportedData.length > 0 && isCarteData) {
+                    loadCarteFromImportedData(lastImportedData[0]);
+                } else {
+                    showNotification("Aucune donnée de carte importée à charger", "warning");
+                }
+            });
+            
+            // Bouton pour voir tous les éléments importés (cartes)
+            carteLoadAllBtn.addEventListener('click', function() {
+                if (lastImportedData && lastImportedData.length > 0 && isCarteData) {
+                    showNotification(`${lastImportedData.length} fiches importées ajoutées à la liste`, "info");
+                } else {
+                    showNotification("Aucune donnée de carte importée à afficher", "warning");
+                }
+            });
+        }
+        
+        // Fonction pour obtenir la localisation GPS pour la carte
+        function getCarteLocation() {
+            if (navigator.geolocation) {
+                carteGpsStatusElement.textContent = "Localisation en cours...";
+                carteGpsStatusElement.className = "gps-status inactive";
+                
+                navigator.geolocation.getCurrentPosition(
+                    // Succès
+                    function(position) {
+                        carteLatitude = position.coords.latitude;
+                        carteLongitude = position.coords.longitude;
+                        
+                        carteLatitudeElement.textContent = `Latitude: ${carteLatitude.toFixed(6)}`;
+                        carteLongitudeElement.textContent = `Longitude: ${carteLongitude.toFixed(6)}`;
+                        
+                        carteGpsStatusElement.textContent = "Localisation active";
+                        carteGpsStatusElement.className = "gps-status active";
+                        
+                        showNotification("Localisation obtenue avec succès pour la fiche!", "success");
+                    },
+                    // Erreur
+                    function(error) {
+                        console.error("Erreur de géolocalisation:", error);
+                        carteGpsStatusElement.textContent = "Erreur de localisation";
+                        carteGpsStatusElement.className = "gps-status inactive";
+                        
+                        // Coordonnées par défaut
+                        carteLatitude = 6.1319;
+                        carteLongitude = 1.2228;
+                        carteLatitudeElement.textContent = `Latitude: ${carteLatitude.toFixed(6)} (défaut)`;
+                        carteLongitudeElement.textContent = `Longitude: ${carteLongitude.toFixed(6)} (défaut)`;
+                        
+                        showNotification("Localisation par défaut utilisée. Activez le GPS pour une précision optimale.", "warning");
+                    },
+                    // Options
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                showNotification("La géolocalisation n'est pas supportée par votre navigateur.", "error");
+            }
+        }
+        
+        // Fonction pour exporter les données d'activité
+        function exportActivityData() {
+            // Récupérer les données du formulaire d'activité
+            const formData = new FormData(activityForm);
+            const data = {};
+            
+            // Convertir FormData en objet
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Ajouter les notes enrichies
+            data.notes = notesHiddenInput.value;
+            
+            // Ajouter les coordonnées GPS si disponibles
+            if (activityLatitude && activityLongitude) {
+                data.latitude = activityLatitude;
+                data.longitude = activityLongitude;
+                data.address = activityAddressInput.value;
+            }
+            
+            // Ajouter un timestamp
+            data.timestamp = new Date().toISOString();
+            
+            // Créer un tableau avec les données (pour être cohérent avec l'import)
+            const exportData = [data];
+            
+            // Convertir en JSON
+            const jsonData = JSON.stringify(exportData, null, 2);
+            
+            // Créer un blob et un lien de téléchargement
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Générer un nom de fichier avec la date
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `prechons_activites_${dateStr}.json`;
+            
+            // Déclencher le téléchargement
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification("Données d'activité exportées en JSON avec succès!", "success");
+        }
+        
+        // Fonction pour exporter les données de carte
+        function exportCarteData() {
+            // Récupérer les données du formulaire de carte
+            const formData = new FormData(carteForm);
+            const data = {};
+            
+            // Convertir FormData en objet
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Ajouter les coordonnées GPS si disponibles
+            if (carteLatitude && carteLongitude) {
+                data.latitude = carteLatitude;
+                data.longitude = carteLongitude;
+            }
+            
+            // Ajouter un timestamp
+            data.timestamp = new Date().toISOString();
+            
+            // Créer un tableau avec les données (pour être cohérent avec l'import)
+            const exportData = [data];
+            
+            // Convertir en JSON
+            const jsonData = JSON.stringify(exportData, null, 2);
+            
+            // Créer un blob et un lien de téléchargement
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Générer un nom de fichier avec la date
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `prechons_cartes_${dateStr}.json`;
+            
+            // Déclencher le téléchargement
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification("Données de carte exportées en JSON avec succès!", "success");
+        }
+        
+        // Fonction pour envoyer la fiche via WhatsApp
+        function sendCarteViaWhatsApp() {
+            // Récupérer les données du formulaire
+            const formData = new FormData(carteForm);
+            const data = {};
+            
+            // Convertir FormData en objet
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Vérifier que les champs obligatoires sont remplis
+            if (!data.carteName || !data.carteType || !data.carteGroup || !data.carteCongregation || !data.cartePhone) {
+                showNotification("Veuillez remplir tous les champs obligatoires avant d'envoyer.", "warning");
+                return;
+            }
+            
+            // Créer le message WhatsApp
+            let message = `*NOUVELLE FICHE FRÈRE/SŒUR*\n\n`;
+            message += `👤 *Nom:* ${data.carteName}\n`;
+            message += `🏷️ *Statut:* ${data.carteType}\n`;
+            message += `👥 *Groupe:* ${data.carteGroup}\n`;
+            message += `⛪ *Congrégation:* ${data.carteCongregation}\n`;
+            message += `📞 *Téléphone:* ${data.cartePhone}\n`;
+            
+            if (data.carteWhatsApp) {
+                message += `💬 *WhatsApp:* ${data.carteWhatsApp}\n`;
+            }
+            
+            if (data.carteAddress) {
+                message += `📍 *Adresse:* ${data.carteAddress}\n`;
+            }
+            
+            if (carteLatitude && carteLongitude) {
+                message += `🗺️ *Coordonnées GPS:* ${carteLatitude.toFixed(6)}, ${carteLongitude.toFixed(6)}\n`;
+                message += `https://maps.google.com/?q=${carteLatitude},${carteLongitude}\n`;
+            }
+            
+            if (data.carteNotes) {
+                message += `📝 *Notes:* ${data.carteNotes}\n`;
+            }
+            
+            message += `\n_Enregistré via l'application Prêchons_`;
+            
+            // Encoder le message pour l'URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Numéro WhatsApp (+228 92871605)
+            const phoneNumber = "+22892871605";
+            
+            // Créer l'URL WhatsApp
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            // Ouvrir WhatsApp dans une nouvelle fenêtre
+            window.open(whatsappUrl, '_blank');
+            
+            showNotification("Préparation du message WhatsApp...", "success");
+        }
+        
+        // Fonction pour générer une carte
+        function generateMap() {
+            if (cartes.length === 0) {
+                showNotification("Aucune fiche enregistrée pour générer une carte", "warning");
+                return;
+            }
+            
+            // Créer un contenu KML simple
+            let kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+<name>Frères et Sœurs - Congrégation</name>
+<description>Cartographie des frères et sœurs</description>`;
+            
+            // Ajouter un marqueur pour chaque fiche avec coordonnées
+            cartes.forEach((carte, index) => {
+                if (carte.latitude && carte.longitude) {
+                    kmlContent += `
+<Placemark>
+<name>${carte.carteName || 'Sans nom'}</name>
+<description>
+<![CDATA[
+<b>${carte.carteName || 'Sans nom'}</b><br/>
+Statut: ${carte.carteType || 'Non spécifié'}<br/>
+Groupe: ${carte.carteGroup || 'Non spécifié'}<br/>
+Congrégation: ${carte.carteCongregation || 'Non spécifiée'}<br/>
+Téléphone: ${carte.cartePhone || 'Non spécifié'}<br/>
+${carte.carteWhatsApp ? `WhatsApp: ${carte.carteWhatsApp}<br/>` : ''}
+Adresse: ${carte.carteAddress || 'Non spécifiée'}<br/>
+${carte.carteNotes ? `Notes: ${carte.carteNotes}<br/>` : ''}
+]]>
+</description>
+<Point>
+<coordinates>${carte.longitude},${carte.latitude},0</coordinates>
+</Point>
+</Placemark>`;
+                }
+            });
+            
+            kmlContent += `
+</Document>
+</kml>`;
+            
+            // Créer un blob et un lien de téléchargement
+            const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cartes_freres_soeurs.kml';
+            
+            // Déclencher le téléchargement
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification("Carte KML générée avec succès! Ouvrez-la avec Google Earth ou une application compatible.", "success");
         }
         
         // Gestion des onglets
@@ -2064,8 +2898,16 @@
                     cancelActivityEditBtn.style.display = 'flex';
                 }
                 
+                // Si on passe à l'onglet carte, vérifier si on est en mode édition
+                if (tabId === 'carte' && editingCarteIdInput.value) {
+                    carteFormMode.style.display = 'block';
+                    carteFormMode.classList.add('edit-mode');
+                    carteFormTitle.textContent = 'Modifier une fiche';
+                    cancelCarteEditBtn.style.display = 'flex';
+                }
+                
                 // Afficher les options de chargement automatique si des données ont été importées
-                if (tabId === 'rdv' && lastImportedData && !isActivityData) {
+                if (tabId === 'rdv' && lastImportedData && !isActivityData && !isCarteData) {
                     autoLoadOptions.style.display = 'block';
                     updateJsonPreview(lastImportedData, jsonPreview);
                 } else if (tabId === 'rdv') {
@@ -2077,6 +2919,13 @@
                     updateJsonPreview(lastImportedData, activityJsonPreview);
                 } else if (tabId === 'cahier') {
                     activityAutoLoadOptions.style.display = 'none';
+                }
+                
+                if (tabId === 'carte' && lastImportedData && isCarteData) {
+                    carteAutoLoadOptions.style.display = 'block';
+                    updateCarteJsonPreview(lastImportedData, carteJsonPreview);
+                } else if (tabId === 'carte') {
+                    carteAutoLoadOptions.style.display = 'none';
                 }
             });
         });
@@ -2532,6 +3381,7 @@
                     
                     // Détecter si ce sont des données d'activité ou de prédication
                     isActivityData = detectDataType(importedData[0]);
+                    isCarteData = detectCarteDataType(importedData[0]);
                     
                     // Ajouter un flag pour identifier les données importées
                     importedData.forEach((item, index) => {
@@ -2567,6 +3417,34 @@
                         }
                         
                         showNotification(`Fichier JSON d'activités importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
+                    } else if (isCarteData) {
+                        // Ajouter aux cartes existantes
+                        cartes = [...cartes, ...importedData];
+                        
+                        // Sauvegarder dans le localStorage
+                        localStorage.setItem('cartes', JSON.stringify(cartes));
+                        
+                        // Mettre à jour l'affichage
+                        updateCarteList();
+                        
+                        // Afficher les options de chargement automatique
+                        carteAutoLoadOptions.style.display = 'block';
+                        updateCarteJsonPreview(importedData, carteJsonPreview);
+                        
+                        // Basculer vers l'onglet carte si la case est cochée
+                        if (carteAutoLoadCheckbox.checked && importedData.length > 0) {
+                            // Charger le premier élément dans le formulaire
+                            loadCarteFromImportedData(importedData[0]);
+                            
+                            // Basculer vers l'onglet carte
+                            tabs.forEach(t => t.classList.remove('active'));
+                            tabContents.forEach(content => content.classList.remove('active'));
+                            
+                            document.querySelector('.tab[data-tab="carte"]').classList.add('active');
+                            document.getElementById('carte-tab').classList.add('active');
+                        }
+                        
+                        showNotification(`Fichier JSON de cartes importé avec succès! ${importedData.length} entrées ajoutées.`, "success");
                     } else {
                         // Ajouter aux prédications existantes
                         preachings = [...preachings, ...importedData];
@@ -2625,6 +3503,15 @@
             return hasActivityFields && (!hasPreachingFields || (hasActivityFields && hasPreachingFields && Object.keys(data).length > 5));
         }
         
+        // Fonction pour détecter le type de données (carte)
+        function detectCarteDataType(data) {
+            // Vérifier la présence de champs spécifiques aux cartes
+            const carteFields = ['carteName', 'carteType', 'carteGroup', 'carteCongregation', 'cartePhone'];
+            const hasCarteFields = carteFields.some(field => data.hasOwnProperty(field));
+            
+            return hasCarteFields;
+        }
+        
         // Fonction pour mettre à jour l'aperçu JSON
         function updateJsonPreview(data, previewElement) {
             if (!data || data.length === 0) {
@@ -2647,6 +3534,35 @@
                     previewHtml += `<strong>${item.location || 'Sans lieu'}</strong><br>`;
                     previewHtml += `<small>${item.date || 'Pas de date'} - ${item.group || 'Pas de groupe'}</small>`;
                 }
+                
+                previewHtml += `</div>`;
+            }
+            
+            if (data.length > 3) {
+                previewHtml += `<p>... et ${data.length - 3} autre(s) élément(s)</p>`;
+            }
+            
+            previewElement.innerHTML = previewHtml;
+            previewElement.classList.add('show');
+        }
+        
+        // Fonction pour mettre à jour l'aperçu JSON des cartes
+        function updateCarteJsonPreview(data, previewElement) {
+            if (!data || data.length === 0) {
+                previewElement.innerHTML = '<p>Aucune donnée à afficher</p>';
+                return;
+            }
+            
+            let previewHtml = `<p><strong>${data.length} élément(s) importé(s)</strong></p>`;
+            
+            // Afficher les premiers éléments (max 3)
+            const itemsToShow = Math.min(data.length, 3);
+            for (let i = 0; i < itemsToShow; i++) {
+                const item = data[i];
+                previewHtml += `<div style="margin-bottom: 10px; padding: 10px; background-color: white; border-radius: 4px; border-left: 3px solid #e74c3c;">`;
+                
+                previewHtml += `<strong>${item.carteName || 'Sans nom'}</strong><br>`;
+                previewHtml += `<small>${item.carteType || 'Non spécifié'} - ${item.carteGroup || 'Pas de groupe'}</small>`;
                 
                 previewHtml += `</div>`;
             }
@@ -2747,9 +3663,43 @@
             showNotification("Première activité importée chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
         }
         
+        // Fonction pour charger une carte à partir des données importées
+        function loadCarteFromImportedData(data) {
+            // Remplir le formulaire avec les données de la carte
+            document.getElementById('carteName').value = data.carteName || '';
+            document.getElementById('carteType').value = data.carteType || '';
+            document.getElementById('carteGroup').value = data.carteGroup || '';
+            document.getElementById('carteCongregation').value = data.carteCongregation || '';
+            document.getElementById('cartePhone').value = data.cartePhone || '';
+            document.getElementById('carteWhatsApp').value = data.carteWhatsApp || '';
+            document.getElementById('carteAddress').value = data.carteAddress || '';
+            document.getElementById('carteNotes').value = data.carteNotes || '';
+            
+            // Mettre à jour les coordonnées GPS si disponibles
+            if (data.latitude && data.longitude) {
+                carteLatitude = data.latitude;
+                carteLongitude = data.longitude;
+                
+                carteLatitudeElement.textContent = `Latitude: ${carteLatitude.toFixed(6)}`;
+                carteLongitudeElement.textContent = `Longitude: ${carteLongitude.toFixed(6)}`;
+                carteGpsStatusElement.textContent = "Localisation chargée";
+                carteGpsStatusElement.className = "gps-status active";
+            }
+            
+            // Activer le mode édition
+            editingCarteIdInput.value = data.id;
+            carteFormMode.style.display = 'block';
+            carteFormMode.classList.add('edit-mode');
+            carteFormTitle.textContent = 'Modifier une fiche importée';
+            cancelCarteEditBtn.style.display = 'flex';
+            document.getElementById('saveCarteBtn').innerHTML = '<i class="fas fa-save"></i> Mettre à jour';
+            
+            showNotification("Première fiche importée chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
+        }
+        
         // Bouton pour charger le premier élément importé
         loadFirstBtn.addEventListener('click', function() {
-            if (lastImportedData && lastImportedData.length > 0 && !isActivityData) {
+            if (lastImportedData && lastImportedData.length > 0 && !isActivityData && !isCarteData) {
                 loadPreachingFromImportedData(lastImportedData[0]);
             } else {
                 showNotification("Aucune donnée de prédication importée à charger", "warning");
@@ -2767,7 +3717,7 @@
         
         // Bouton pour voir tous les éléments importés
         loadAllBtn.addEventListener('click', function() {
-            if (lastImportedData && lastImportedData.length > 0 && !isActivityData) {
+            if (lastImportedData && lastImportedData.length > 0 && !isActivityData && !isCarteData) {
                 // Basculer vers l'onglet liste
                 tabs.forEach(t => t.classList.remove('active'));
                 tabContents.forEach(content => content.classList.remove('active'));
@@ -2835,8 +3785,8 @@
             // Encoder le message pour l'URL
             const encodedMessage = encodeURIComponent(message);
             
-            // Numéro WhatsApp (92871605)
-            const phoneNumber = "92871605";
+            // Numéro WhatsApp (+228 92871605)
+            const phoneNumber = "+22892871605";
             
             // Créer l'URL WhatsApp
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
@@ -3042,6 +3992,23 @@
             
             // Réinitialiser le formulaire
             resetActivityForm();
+            
+            showNotification("Mode édition annulé", "info");
+        }
+        
+        // Fonction pour annuler l'édition de carte dans le formulaire
+        cancelCarteEditBtn.addEventListener('click', cancelCarteEdit);
+        
+        function cancelCarteEdit() {
+            editingCarteIdInput.value = '';
+            carteFormMode.style.display = 'none';
+            carteFormMode.classList.remove('edit-mode');
+            carteFormTitle.textContent = 'Nouvelle fiche frère/sœur';
+            cancelCarteEditBtn.style.display = 'none';
+            document.getElementById('saveCarteBtn').innerHTML = '<i class="fas fa-save"></i> Enregistrer';
+            
+            // Réinitialiser le formulaire
+            carteForm.reset();
             
             showNotification("Mode édition annulé", "info");
         }
@@ -3337,6 +4304,149 @@
                 updateActivityList();
                 updateStatistics();
                 showNotification("Activité supprimée", "success");
+            }
+        };
+        
+        // Fonction pour mettre à jour la liste des cartes
+        function updateCarteList() {
+            if (cartes.length === 0) {
+                carteList.innerHTML = `
+                    <div class="empty-list">
+                        <i class="fas fa-map"></i>
+                        <h3>Aucune fiche enregistrée</h3>
+                        <p>Ajoutez votre première fiche frère/sœur pour commencer</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Trier par nom
+            const sortedCartes = [...cartes].sort((a, b) => (a.carteName || '').localeCompare(b.carteName || ''));
+            
+            // Générer le HTML pour chaque carte
+            carteList.innerHTML = sortedCartes.map(carte => {
+                const isImported = carte.imported || false;
+                
+                return `
+                    <div class="carte-item">
+                        <div class="carte-item-header">
+                            <div class="carte-name">
+                                <i class="fas fa-user"></i> ${carte.carteName || 'Sans nom'}
+                                ${isImported ? '<span class="imported-badge">Importé</span>' : ''}
+                            </div>
+                            <div class="carte-group">
+                                <i class="fas fa-users"></i> ${carte.carteGroup || 'Non spécifié'}
+                            </div>
+                        </div>
+                        
+                        <div class="carte-congregation">
+                            <i class="fas fa-church"></i> <strong>Congrégation:</strong> ${carte.carteCongregation || 'Non spécifiée'}
+                        </div>
+                        
+                        <div class="carte-contact">
+                            <i class="fas fa-user-tag"></i> <strong>Statut:</strong> ${carte.carteType || 'Non spécifié'}
+                        </div>
+                        
+                        <div class="carte-contact">
+                            <i class="fas fa-phone"></i> <strong>Téléphone:</strong> 
+                            <span class="phone-contact">${carte.cartePhone || 'Non spécifié'}</span>
+                        </div>
+                        
+                        ${carte.carteWhatsApp ? `
+                        <div class="carte-contact">
+                            <i class="fab fa-whatsapp"></i> <strong>WhatsApp:</strong> 
+                            <span class="whatsapp-contact">${carte.carteWhatsApp}</span>
+                        </div>
+                        ` : ''}
+                        
+                        ${carte.carteAddress ? `
+                        <div class="carte-address">
+                            <i class="fas fa-map-marker-alt"></i> <strong>Adresse:</strong> ${carte.carteAddress}
+                        </div>
+                        ` : ''}
+                        
+                        ${carte.latitude && carte.longitude ? `
+                        <div style="margin-top: 10px; color: #64748b;">
+                            <i class="fas fa-map-marked-alt"></i> <strong>Localisation:</strong> 
+                            <div style="margin-top: 5px; padding: 10px; background-color: #f8f9fa; border-radius: 4px; font-size: 0.9em;">
+                                ${carte.latitude.toFixed(6)}, ${carte.longitude.toFixed(6)}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${carte.carteNotes ? `
+                        <div style="margin-top: 10px; color: #64748b;">
+                            <i class="fas fa-sticky-note"></i> <strong>Notes:</strong> 
+                            <div style="margin-top: 5px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                                ${carte.carteNotes}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="carte-actions">
+                            <button class="btn-load-form" onclick="loadCarteToForm(${carte.id})">
+                                <i class="fas fa-edit"></i> Charger dans le formulaire
+                            </button>
+                            <button class="btn-delete" onclick="deleteCarte(${carte.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Fonction pour charger une carte dans le formulaire
+        window.loadCarteToForm = function(id) {
+            const carte = cartes.find(c => c.id === id);
+            if (!carte) return;
+            
+            // Remplir le formulaire avec les données de la carte
+            document.getElementById('carteName').value = carte.carteName || '';
+            document.getElementById('carteType').value = carte.carteType || '';
+            document.getElementById('carteGroup').value = carte.carteGroup || '';
+            document.getElementById('carteCongregation').value = carte.carteCongregation || '';
+            document.getElementById('cartePhone').value = carte.cartePhone || '';
+            document.getElementById('carteWhatsApp').value = carte.carteWhatsApp || '';
+            document.getElementById('carteAddress').value = carte.carteAddress || '';
+            document.getElementById('carteNotes').value = carte.carteNotes || '';
+            
+            // Mettre à jour les coordonnées GPS si disponibles
+            if (carte.latitude && carte.longitude) {
+                carteLatitude = carte.latitude;
+                carteLongitude = carte.longitude;
+                
+                carteLatitudeElement.textContent = `Latitude: ${carteLatitude.toFixed(6)}`;
+                carteLongitudeElement.textContent = `Longitude: ${carteLongitude.toFixed(6)}`;
+                carteGpsStatusElement.textContent = "Localisation chargée";
+                carteGpsStatusElement.className = "gps-status active";
+            }
+            
+            // Activer le mode édition
+            editingCarteIdInput.value = carte.id;
+            carteFormMode.style.display = 'block';
+            carteFormMode.classList.add('edit-mode');
+            carteFormTitle.textContent = 'Modifier une fiche';
+            cancelCarteEditBtn.style.display = 'flex';
+            document.getElementById('saveCarteBtn').innerHTML = '<i class="fas fa-save"></i> Mettre à jour';
+            
+            // Basculer vers l'onglet carte
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector('.tab[data-tab="carte"]').classList.add('active');
+            document.getElementById('carte-tab').classList.add('active');
+            
+            showNotification("Fiche chargée dans le formulaire. Modifiez et cliquez sur 'Mettre à jour'.", "success");
+        };
+        
+        // Fonction pour supprimer une carte
+        window.deleteCarte = function(id) {
+            if (confirm("Voulez-vous vraiment supprimer cette fiche ?")) {
+                cartes = cartes.filter(c => c.id !== id);
+                localStorage.setItem('cartes', JSON.stringify(cartes));
+                updateCarteList();
+                showNotification("Fiche supprimée", "success");
             }
         };
         
