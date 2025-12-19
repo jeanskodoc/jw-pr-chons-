@@ -436,16 +436,6 @@
             border: 1px solid #e2e8f0;
         }
         
-        .activity-form h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #3498db;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
         .activity-item {
             background-color: white;
             padding: 20px;
@@ -2490,10 +2480,18 @@
                         isCarteData = true;
                         isActivityData = false;
                         
+                        // CORRECTION : Détection améliorée des champs pour éviter les erreurs
                         // Ajouter un flag pour identifier les données importées
                         importedData.forEach((item, index) => {
                             item.imported = true;
                             item.id = Date.now() + Math.random() + index; // ID unique
+                            
+                            // Assurer que tous les champs nécessaires existent
+                            if (!item.carteName) item.carteName = "Nom inconnu";
+                            if (!item.carteType) item.carteType = "Non spécifié";
+                            if (!item.carteGroup) item.carteGroup = "Non spécifié";
+                            if (!item.carteCongregation) item.carteCongregation = "Non spécifiée";
+                            if (!item.cartePhone) item.cartePhone = "Non spécifié";
                         });
                         
                         // Ajouter aux cartes existantes
@@ -3379,14 +3377,48 @@ ${carte.carteNotes ? `Notes: ${carte.carteNotes}<br/>` : ''}
                         lastImportedData = importedData;
                     }
                     
-                    // Détecter si ce sont des données d'activité ou de prédication
-                    isActivityData = detectDataType(importedData[0]);
-                    isCarteData = detectCarteDataType(importedData[0]);
+                    // CORRECTION : Détection améliorée des données importées
+                    // Détecter le type de données avec plus de précision
+                    const sampleItem = importedData[0] || {};
+                    
+                    // Vérifier la présence de champs spécifiques
+                    const hasPreachingFields = sampleItem.hasOwnProperty('location') || sampleItem.hasOwnProperty('group');
+                    const hasActivityFields = sampleItem.hasOwnProperty('personName') || sampleItem.hasOwnProperty('theme') || sampleItem.hasOwnProperty('nextVisitDate');
+                    const hasCarteFields = sampleItem.hasOwnProperty('carteName') || sampleItem.hasOwnProperty('carteType') || sampleItem.hasOwnProperty('carteGroup');
+                    
+                    // Déterminer le type de données
+                    if (hasCarteFields) {
+                        isCarteData = true;
+                        isActivityData = false;
+                    } else if (hasActivityFields && !hasPreachingFields) {
+                        isActivityData = true;
+                        isCarteData = false;
+                    } else {
+                        isActivityData = false;
+                        isCarteData = false;
+                    }
                     
                     // Ajouter un flag pour identifier les données importées
                     importedData.forEach((item, index) => {
                         item.imported = true;
                         item.id = Date.now() + Math.random() + index; // ID unique
+                        
+                        // Assurer que les champs nécessaires existent selon le type
+                        if (isCarteData) {
+                            if (!item.carteName) item.carteName = "Nom inconnu";
+                            if (!item.carteType) item.carteType = "Non spécifié";
+                            if (!item.carteGroup) item.carteGroup = "Non spécifié";
+                            if (!item.carteCongregation) item.carteCongregation = "Non spécifiée";
+                            if (!item.cartePhone) item.cartePhone = "Non spécifié";
+                        } else if (isActivityData) {
+                            if (!item.personName) item.personName = "Nom inconnu";
+                            if (!item.theme) item.theme = "Non spécifié";
+                            if (!item.nextVisitDate) item.nextVisitDate = new Date().toISOString().split('T')[0];
+                        } else {
+                            if (!item.location) item.location = "Lieu inconnu";
+                            if (!item.group) item.group = "Non spécifié";
+                            if (!item.date) item.date = new Date().toISOString().split('T')[0];
+                        }
                     });
                     
                     if (isActivityData) {
@@ -3489,8 +3521,10 @@ ${carte.carteNotes ? `Notes: ${carte.carteNotes}<br/>` : ''}
             event.target.value = '';
         });
         
-        // Fonction pour détecter le type de données (activité ou prédication)
+        // CORRECTION : Fonction de détection améliorée pour éviter les erreurs
         function detectDataType(data) {
+            if (!data || typeof data !== 'object') return false;
+            
             // Vérifier la présence de champs spécifiques aux activités
             const activityFields = ['personName', 'theme', 'verse', 'nextVisitDate', 'nextVisitTime'];
             const hasActivityFields = activityFields.some(field => data.hasOwnProperty(field));
@@ -3499,17 +3533,26 @@ ${carte.carteNotes ? `Notes: ${carte.carteNotes}<br/>` : ''}
             const preachingFields = ['location', 'group', 'neighborhood', 'preaching'];
             const hasPreachingFields = preachingFields.some(field => data.hasOwnProperty(field));
             
-            // Si plus de champs d'activité que de prédication, c'est une activité
-            return hasActivityFields && (!hasPreachingFields || (hasActivityFields && hasPreachingFields && Object.keys(data).length > 5));
-        }
-        
-        // Fonction pour détecter le type de données (carte)
-        function detectCarteDataType(data) {
             // Vérifier la présence de champs spécifiques aux cartes
-            const carteFields = ['carteName', 'carteType', 'carteGroup', 'carteCongregation', 'cartePhone'];
+            const carteFields = ['carteName', 'carteType', 'carteGroup', 'carteCongregation'];
             const hasCarteFields = carteFields.some(field => data.hasOwnProperty(field));
             
-            return hasCarteFields;
+            // Priorité : Carte > Activité > Prédication
+            if (hasCarteFields) {
+                return 'carte';
+            } else if (hasActivityFields && !hasPreachingFields) {
+                return 'activity';
+            } else if (hasPreachingFields && !hasActivityFields) {
+                return 'preaching';
+            }
+            
+            // Fallback : analyser les clés disponibles
+            const keys = Object.keys(data);
+            if (keys.some(k => k.includes('carte'))) return 'carte';
+            if (keys.some(k => k.includes('person') || k.includes('theme') || k.includes('visit'))) return 'activity';
+            if (keys.some(k => k.includes('location') || k.includes('group') || k.includes('preach'))) return 'preaching';
+            
+            return 'unknown';
         }
         
         // Fonction pour mettre à jour l'aperçu JSON
