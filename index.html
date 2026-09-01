@@ -1,5 +1,3874 @@
 <!DOCTYPE html>
+<html lan<!DOCTYPE html>
 <html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>Prêchons - Application de Suivi des Prédications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: url('JW.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            background-color: rgba(245, 247, 250, 0.85);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.88);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            min-height: 100vh;
+            backdrop-filter: blur(5px);
+            width: 100%;
+        }
+        
+        /* ===== HEADER ===== */
+        header {
+            background: linear-gradient(to right, rgba(26, 71, 42, 0.95), rgba(46, 125, 50, 0.95));
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px solid #d4a017;
+        }
+        
+        h1 {
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            opacity: 0.9;
+        }
+        
+        .jw-logo {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            color: #ffffff;
+            background-color: #d4a017;
+            width: clamp(50px, 10vw, 70px);
+            height: clamp(50px, 10vw, 70px);
+            line-height: clamp(50px, 10vw, 70px);
+            border-radius: 50%;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+        }
+        
+        .jw-logo span {
+            font-size: clamp(1.4rem, 3.5vw, 2rem);
+            letter-spacing: -1px;
+        }
+        
+        /* ===== USER INFO ===== */
+        .user-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(5px);
+            flex-wrap: wrap;
+        }
+        
+        .user-role-badge {
+            display: inline-block;
+            background-color: #d4a017;
+            color: white;
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* ===== TABS ===== */
+        .tabs-container {
+            display: flex;
+            background-color: rgba(241, 245, 249, 0.95);
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        
+        .tabs-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .tabs-container::-webkit-scrollbar-thumb {
+            background: #d4a017;
+            border-radius: 4px;
+        }
+        
+        .tab {
+            padding: 10px 12px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            color: #2c3e50;
+            white-space: nowrap;
+            min-width: 70px;
+            flex: 0 0 auto;
+        }
+        
+        .tab:hover {
+            background-color: rgba(226, 232, 240, 0.8);
+            color: #1a472a;
+        }
+        
+        .tab.active {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #1a472a;
+            border-bottom: 3px solid #d4a017;
+        }
+        
+        .tab i {
+            margin-right: 5px;
+            font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+        }
+        
+        .tab.locked-tab {
+            opacity: 0.6;
+        }
+        .tab.locked-tab::after {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 4px;
+            font-size: 0.65rem;
+            color: #d32f2f;
+        }
+        
+        .jw-icon-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #d4a017;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 0.5rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            vertical-align: middle;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .jw-icon-badge.lg {
+            width: 22px;
+            height: 22px;
+            font-size: 0.6rem;
+        }
+        
+        /* ===== TAB CONTENT ===== */
+        .tab-content {
+            display: none;
+            padding: clamp(12px, 2vw, 20px);
+            animation: fadeIn 0.4s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ===== FORMULAIRE ===== */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            gap: 12px;
+        }
+        
+        .form-group {
+            flex: 1 1 200px;
+            min-width: 150px;
+        }
+        
+        label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #1a472a;
+            font-size: clamp(0.8rem, 1.3vw, 0.95rem);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: clamp(0.85rem, 1.3vw, 1rem);
+            transition: border 0.3s;
+            background-color: rgba(248, 249, 250, 0.95);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2e7d32;
+            gap: 10px;
+        }
+        
+        .form-title {
+            color: #1a472a;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-mode-indicator {
+            display: none;
+            background-color: #f57c00;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* ===== BOUTONS ===== */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            min-width: 100px;
+            white-space: nowrap;
+            flex: 0 1 auto;
+        }
+        
+        .btn-primary { background-color: #2e7d32; color: white; }
+        .btn-primary:hover { background-color: #1b5e20; transform: translateY(-2px); }
+        
+        .btn-success { background-color: #388e3c; color: white; }
+        .btn-success:hover { background-color: #2e7d32; transform: translateY(-2px); }
+        
+        .btn-whatsapp { background-color: #25D366; color: white; }
+        .btn-whatsapp:hover { background-color: #1da851; transform: translateY(-2px); }
+        
+        .btn-import { background-color: #f57c00; color: white; }
+        .btn-import:hover { background-color: #ef6c00; transform: translateY(-2px); }
+        
+        .btn-export { background-color: #7b1fa2; color: white; }
+        .btn-export:hover { background-color: #6a1b9a; transform: translateY(-2px); }
+        
+        .btn-gps { background-color: #455a64; color: white; }
+        .btn-gps:hover { background-color: #37474f; transform: translateY(-2px); }
+        
+        .btn-map { background-color: #d32f2f; color: white; }
+        .btn-map:hover { background-color: #c62828; transform: translateY(-2px); }
+        
+        .btn-danger { background-color: #d32f2f; color: white; }
+        .btn-danger:hover { background-color: #c62828; transform: translateY(-2px); }
+        
+        .btn-danger-outline { background-color: transparent; color: #d32f2f; border: 2px solid #d32f2f; }
+        .btn-danger-outline:hover { background-color: #d32f2f; color: white; transform: translateY(-2px); }
+        
+        .btn-jw-icon {
+            background-color: #d4a017;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+        .btn-jw-icon:hover {
+            background-color: #b8860b;
+            transform: scale(1.03);
+        }
+        
+        .btn-jw-icon .jw-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            color: #d4a017;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 0.6rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+        
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            min-width: auto;
+        }
+        
+        .btn-danger-xs {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .btn-danger-xs:hover {
+            background-color: #c62828;
+        }
+        
+        .test-whatsapp-btn {
+            padding: 6px 10px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .test-whatsapp-btn:hover {
+            background-color: #1da851;
+        }
+        
+        /* ===== SECTIONS ===== */
+        .gps-section {
+            background-color: rgba(232, 244, 252, 0.9);
+            padding: clamp(12px, 2vw, 18px);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #2e7d32;
+        }
+        
+        .gps-section h3 {
+            color: #1a472a;
+            margin-bottom: 12px;
+            font-size: clamp(1rem, 1.8vw, 1.2rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .gps-coordinates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
+        .gps-coordinate {
+            flex: 1 1 180px;
+            min-width: 140px;
+        }
+        
+        .gps-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .gps-status {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+        .gps-status.active { background-color: #4caf50; color: white; }
+        .gps-status.inactive { background-color: #f44336; color: white; }
+        .gps-status.waiting { background-color: #ff9800; color: white; }
+        
+        .trajectory-section {
+            background-color: rgba(255, 243, 205, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 1px solid #ffb74d;
+        }
+        
+        .trajectory-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 8px;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+        }
+        
+        .trajectory-point {
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.8rem;
+        }
+        .trajectory-point:last-child { border-bottom: none; }
+        
+        /* ===== SECTIONS SONO ===== */
+        .sono-section {
+            background-color: rgba(248, 249, 250, 0.95);
+            padding: clamp(12px, 2vw, 18px);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .sono-section h4 {
+            color: #1a472a;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            flex-wrap: wrap;
+        }
+        
+        .sono-list { margin-top: 8px; }
+        
+        .sono-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border-left: 3px solid #d4a017;
+            gap: 8px;
+        }
+        
+        .sono-item .sono-name {
+            font-weight: 600;
+            color: #1a472a;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+        }
+        
+        .sono-item .sono-actions { display: flex; gap: 6px; }
+        
+        .sono-add-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .sono-add-form input {
+            flex: 1 1 180px;
+            min-width: 120px;
+        }
+        
+        .sono-add-form .btn {
+            min-width: auto;
+            padding: 8px 16px;
+            flex: 0 1 auto;
+        }
+        
+        .sono-planning {
+            background-color: #e8f5e9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 1px solid #2e7d32;
+        }
+        
+        .sono-planning h4 {
+            color: #1a472a;
+            margin-bottom: 8px;
+            font-size: clamp(0.9rem, 1.3vw, 1rem);
+        }
+        
+        .sono-planning .planning-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 15px;
+            padding: 6px 0;
+            border-bottom: 1px solid #c8e6c9;
+        }
+        .sono-planning .planning-item:last-child { border-bottom: none; }
+        
+        .sono-planning .planning-label {
+            font-weight: 600;
+            color: #2e7d32;
+            min-width: 100px;
+            font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+        }
+        
+        /* ===== STATISTIQUES ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background-color: rgba(248, 249, 250, 0.95);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-icon {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 4px;
+            color: #2e7d32;
+        }
+        
+        .stat-value {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            font-weight: bold;
+            color: #1a472a;
+        }
+        
+        .group-stats-container { margin-top: 20px; }
+        
+        .group-stat-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .group-stat-header {
+            background: linear-gradient(to right, rgba(26, 71, 42, 0.9), rgba(46, 125, 50, 0.8));
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .group-stat-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            flex-wrap: wrap;
+        }
+        
+        .group-stat-header .group-counts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+        }
+        
+        .group-stat-header .group-counts span {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+        
+        .group-stat-body { padding: 12px 16px; }
+        
+        .publisher-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 6px;
+        }
+        .publisher-item:last-child { border-bottom: none; }
+        
+        .publisher-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .publisher-name {
+            font-weight: 600;
+            color: #1a472a;
+            font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+        }
+        
+        .publisher-status {
+            font-size: 0.65rem;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .status-baptized { background-color: #4caf50; color: white; }
+        .status-unbaptized { background-color: #ff9800; color: white; }
+        
+        .publisher-type {
+            font-size: 0.7rem;
+            color: #64748b;
+            background-color: #f1f5f9;
+            padding: 1px 8px;
+            border-radius: 10px;
+        }
+        
+        .publisher-gps {
+            font-size: 0.75rem;
+            color: #1976d2;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .publisher-gps a {
+            color: #1976d2;
+            text-decoration: none;
+            font-size: 0.7rem;
+        }
+        .publisher-gps a:hover { text-decoration: underline; }
+        .publisher-gps .no-gps { color: #999; font-size: 0.7rem; }
+        
+        .baptized-count { color: #4caf50; }
+        .unbaptized-count { color: #ff9800; }
+        .total-count { color: #1976d2; }
+        
+        /* ===== AUTRES ===== */
+        .access-denied {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px 15px;
+            border-radius: 8px;
+            color: #856404;
+            text-align: center;
+        }
+        
+        .access-denied h4 {
+            color: #856404;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: clamp(1rem, 1.8vw, 1.2rem);
+            flex-wrap: wrap;
+        }
+        
+        .access-denied .btn { margin-top: 10px; display: inline-flex; }
+        
+        .empty-list {
+            text-align: center;
+            padding: 30px 15px;
+            color: #94a3b8;
+        }
+        .empty-list i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+        }
+        .empty-list h3 { font-size: clamp(0.95rem, 1.5vw, 1.1rem); }
+        .empty-list p { font-size: clamp(0.8rem, 1.2vw, 0.9rem); }
+        
+        .list-item, .activity-item, .carte-item {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .list-item:hover, .activity-item:hover, .carte-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .activity-item { border-left-color: #9b59b6; }
+        .carte-item { border-left-color: #d32f2f; }
+        
+        .note-item {
+            background-color: white;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 4px solid #d4a017;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        
+        .note-item .note-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: #64748b;
+            gap: 8px;
+        }
+        
+        .note-item .note-content {
+            white-space: pre-wrap;
+            font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+        }
+        
+        /* ===== RAPPORT ===== */
+        .rapport-form {
+            background-color: rgba(248, 249, 250, 0.95);
+            padding: clamp(15px, 2vw, 25px);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .reunion-form {
+            background-color: rgba(248, 249, 250, 0.95);
+            padding: clamp(15px, 2vw, 25px);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .sous-section {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: clamp(12px, 2vw, 18px);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #9b59b6;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .sous-section h4 {
+            color: #1a472a;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(0.9rem, 1.3vw, 1rem);
+            flex-wrap: wrap;
+        }
+        
+        .topic-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .topic-row label {
+            min-width: 140px;
+            margin-bottom: 0;
+            font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+        }
+        .topic-row input {
+            flex: 1 1 180px;
+            min-width: 120px;
+        }
+        
+        .optional-note {
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .medium-input { max-width: 280px; width: 100%; }
+        
+        .section-title {
+            color: #1a472a;
+            margin: 20px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #2e7d32;
+            font-size: clamp(1rem, 1.6vw, 1.2rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .section-title:first-child { margin-top: 0; }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 160px;
+        }
+        .checkbox-item input[type="checkbox"] { width: auto; flex: 0 0 auto; }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .radio-item input[type="radio"] { width: auto; flex: 0 0 auto; }
+        
+        .number-input { max-width: 100px; width: 100%; }
+        
+        .link-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .link-input-group input {
+            flex: 1 1 180px;
+            min-width: 120px;
+        }
+        
+        .form-help {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        /* ===== AUTH ===== */
+        .auth-container {
+            max-width: 400px;
+            margin: 30px auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 25px 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border-top: 4px solid #d4a017;
+            width: 95%;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .auth-header h2 {
+            color: #1a472a;
+            margin-bottom: 8px;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+        }
+        .auth-header p { font-size: clamp(0.85rem, 1.5vw, 1rem); }
+        
+        .auth-form-group {
+            margin-bottom: 15px;
+        }
+        .auth-form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+        }
+        .auth-form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: clamp(0.9rem, 1.3vw, 1rem);
+        }
+        
+        .auth-error {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 12px 15px;
+            margin-top: 15px;
+            color: #555;
+            font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+            border-top: 1px solid #eee;
+            background-color: rgba(248, 249, 250, 0.95);
+        }
+        
+        /* ===== NOTIFICATION ===== */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            background-color: #2e7d32;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* ===== JW ICONS ===== */
+        .jw-congregation-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #d4a017;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 0.5rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            flex-shrink: 0;
+        }
+        
+        .jw-decoration {
+            position: absolute;
+            opacity: 0.08;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: white;
+        }
+        .jw-decoration.left { top: 10px; left: 15px; }
+        .jw-decoration.right { bottom: 10px; right: 15px; }
+        
+        .gps-loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container { margin: 5px; border-radius: 8px; }
+            header { padding: 10px 12px; }
+            
+            .user-info {
+                position: static;
+                justify-content: center;
+                background-color: rgba(255,255,255,0.1);
+                border-radius: 20px;
+                padding: 4px 12px;
+                margin-top: 6px;
+            }
+            
+            .tabs-container {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .tab {
+                padding: 8px 10px;
+                font-size: 0.7rem;
+                min-width: 60px;
+            }
+            .tab i { font-size: 0.8rem; margin-right: 3px; }
+            
+            .action-buttons { flex-direction: column; align-items: stretch; }
+            .btn { width: 100%; min-width: unset; padding: 10px 12px; justify-content: center; }
+            
+            .form-row { flex-direction: column; gap: 10px; }
+            .form-group { min-width: 100%; }
+            
+            .gps-coordinates { flex-direction: column; }
+            .gps-coordinate { min-width: 100%; }
+            
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            
+            .group-stat-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .group-stat-header .group-counts {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .publisher-item { flex-direction: column; align-items: flex-start; }
+            .publisher-info { width: 100%; }
+            .publisher-gps { width: 100%; justify-content: flex-start; }
+            
+            .topic-row { flex-direction: column; align-items: stretch; }
+            .topic-row label { min-width: unset; }
+            .medium-input { max-width: 100%; }
+            
+            .sono-add-form { flex-direction: column; }
+            .sono-add-form input { width: 100%; }
+            .sono-add-form .btn { width: 100%; }
+            
+            .sono-item { flex-direction: column; align-items: stretch; }
+            .sono-item .sono-actions { justify-content: flex-end; }
+            
+            .link-input-group { flex-direction: column; align-items: stretch; }
+            .link-input-group .test-whatsapp-btn { width: 100%; justify-content: center; }
+            
+            .checkbox-group { flex-direction: column; gap: 6px; }
+            .checkbox-item { min-width: unset; }
+            .radio-group { flex-direction: column; gap: 6px; }
+            
+            .notification {
+                bottom: 10px;
+                right: 10px;
+                max-width: calc(100% - 20px);
+                font-size: 0.8rem;
+            }
+            
+            .sous-section { padding: 12px; }
+            .reunion-form, .rapport-form { padding: 12px; }
+            .tab-content { padding: 10px; }
+            .section-title { font-size: 0.95rem; margin: 15px 0 10px 0; }
+            .number-input { max-width: 100%; }
+        }
+        
+        @media (max-width: 480px) {
+            .container { margin: 3px; border-radius: 6px; }
+            header { padding: 8px 10px; }
+            h1 { font-size: 1.2rem; }
+            .jw-logo { width: 45px; height: 45px; line-height: 45px; }
+            .jw-logo span { font-size: 1.2rem; }
+            .tab { padding: 6px 8px; font-size: 0.65rem; min-width: 50px; }
+            .tab i { font-size: 0.7rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 8px; }
+            .stat-value { font-size: 1.2rem; }
+            .stat-icon { font-size: 1.2rem; }
+            .group-stat-header { padding: 8px 12px; }
+            .group-stat-body { padding: 8px 12px; }
+            .btn { font-size: 0.75rem; padding: 8px 10px; }
+            .tab-content { padding: 8px; }
+            .gps-section, .sono-section { padding: 10px; }
+            .auth-container { padding: 20px 15px; margin: 15px auto; }
+            .user-info { font-size: 0.65rem; padding: 2px 8px; }
+            .user-role-badge { font-size: 0.5rem; padding: 1px 6px; }
+            .sous-section { padding: 10px; border-left-width: 3px; }
+            .topic-row input { font-size: 0.85rem; }
+            input, select, textarea { font-size: 0.85rem; padding: 6px 8px; }
+            label { font-size: 0.8rem; }
+        }
+        
+        /* ===== PRINT ===== */
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; backdrop-filter: none; background: white; }
+            .btn, .action-buttons, .gps-section, .trajectory-section { display: none; }
+            .tab-content { display: block !important; }
+            .tabs-container { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== AUTHENTIFICATION ===== -->
+    <div id="authContainer" class="auth-container" style="display: block;">
+        <div class="auth-header">
+            <div class="jw-logo" style="width: 55px; height: 55px; line-height: 55px; font-size: 2.2rem; margin-bottom: 12px;">
+                <span>JW</span>
+            </div>
+            <h2>Accès Protégé</h2>
+            <p>Veuillez vous identifier pour accéder aux fonctionnalités</p>
+        </div>
+        
+        <form id="authForm">
+            <div class="auth-form-group">
+                <label for="username"><i class="fas fa-user"></i> Identifiant</label>
+                <input type="text" id="username" name="username" placeholder="Entrez votre identifiant" required>
+            </div>
+            
+            <div class="auth-form-group">
+                <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" required>
+            </div>
+            
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 10px;">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+            </button>
+            
+            <div id="authError" class="auth-error">
+                <i class="fas fa-exclamation-circle"></i> Identifiant ou mot de passe incorrect
+            </div>
+        </form>
+    </div>
+    
+    <!-- ===== INTERFACE PRINCIPALE ===== -->
+    <div id="mainContainer" class="container" style="display: none;">
+        <header>
+            <div class="jw-decoration left">JW</div>
+            <div class="jw-decoration right">JW</div>
+            
+            <div id="userInfo" class="user-info" style="display: none;">
+                <i class="fas fa-user-circle"></i>
+                <span id="currentUser"></span>
+                <span id="userRole" class="user-role-badge"></span>
+                <button type="button" id="logoutBtn" class="logout-btn" title="Se déconnecter">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            
+            <div class="jw-logo">
+                <span>JW</span>
+            </div>
+            <h1>Prêchons</h1>
+            <p class="subtitle">Application de suivi des activités de prédication</p>
+        </header>
+        
+        <!-- ===== TABS ===== -->
+        <div class="tabs-container" id="tabsContainer">
+            <div class="tab active" data-tab="rdv" id="rdvTab">
+                <i class="fas fa-calendar-check"></i> RDV
+            </div>
+            <div class="tab" data-tab="carte" id="carteTab">
+                <i class="fas fa-map"></i> CARTE
+            </div>
+            <div class="tab" data-tab="reunion" id="reunionTab">
+                <span class="jw-icon-badge">JW</span> Réunion
+            </div>
+            <div class="tab" data-tab="liste" id="listeTab">
+                <i class="fas fa-list"></i> Liste
+            </div>
+            <div class="tab" data-tab="statistiques" id="statsTab">
+                <i class="fas fa-chart-bar"></i> Stats
+            </div>
+            <div class="tab" data-tab="sono" id="sonoTab">
+                <i class="fas fa-microphone"></i> Sono
+            </div>
+            <div class="tab" data-tab="cahier">
+                <i class="fas fa-book"></i> Cahier
+            </div>
+            <div class="tab" data-tab="rapport">
+                <i class="fas fa-file-alt"></i> Rapport
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET RDV ===== -->
+        <div id="rdv-tab" class="tab-content active">
+            <div id="rdvAccessDenied" class="access-denied" style="display: none;">
+                <h4><i class="fas fa-lock"></i> Accès Restreint</h4>
+                <p>L'accès à l'onglet RDV est réservé aux administrateurs.</p>
+                <button type="button" class="btn btn-primary login-from-denied-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </div>
+            
+            <div id="rdvContent" style="display: none;">
+                <div class="form-header">
+                    <div class="form-title">
+                        <i class="fas fa-calendar-check"></i>
+                        <span id="formTitle">Nouvelle prédication</span>
+                    </div>
+                    <div id="formMode" class="form-mode-indicator">Mode édition</div>
+                </div>
+                
+                <div class="gps-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Géolocalisation GPS</h3>
+                    
+                    <div class="gps-coordinates">
+                        <div class="gps-coordinate">
+                            <label for="latitude"><i class="fas fa-arrows-up-down"></i> Latitude</label>
+                            <input type="text" id="latitude" name="latitude" readonly placeholder="Cliquez sur 'Obtenir GPS'">
+                        </div>
+                        <div class="gps-coordinate">
+                            <label for="longitude"><i class="fas fa-arrows-left-right"></i> Longitude</label>
+                            <input type="text" id="longitude" name="longitude" readonly placeholder="Cliquez sur 'Obtenir GPS'">
+                        </div>
+                        <div class="gps-coordinate">
+                            <label for="accuracy"><i class="fas fa-crosshairs"></i> Précision</label>
+                            <input type="text" id="accuracy" name="accuracy" readonly placeholder="Mètres">
+                        </div>
+                    </div>
+                    
+                    <div class="gps-info" id="gpsStatus">
+                        Statut GPS: <span class="gps-status inactive" id="gpsStatusText">Non actif</span>
+                    </div>
+                    
+                    <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button type="button" id="getGpsBtn" class="btn btn-gps">
+                            <i class="fas fa-satellite"></i> Obtenir position
+                        </button>
+                        <button type="button" id="clearGpsBtn" class="btn" style="background-color: #757575; color: white;">
+                            <i class="fas fa-trash-alt"></i> Effacer GPS
+                        </button>
+                        <button type="button" id="viewMapBtn" class="btn btn-map">
+                            <i class="fas fa-external-link-alt"></i> Voir sur carte
+                        </button>
+                    </div>
+                    
+                    <div class="trajectory-section" id="trajectorySection" style="display: none;">
+                        <h4 style="color: #f57c00; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <i class="fas fa-route"></i> Trajectoire enregistrée
+                        </h4>
+                        <div class="trajectory-list" id="trajectoryList">
+                            <div class="trajectory-point">Aucun point enregistré</div>
+                        </div>
+                        <button type="button" id="clearTrajectoryBtn" class="btn" style="background-color: #f57c00; color: white; margin-top: 8px; padding: 4px 12px; font-size: 0.8rem;">
+                            <i class="fas fa-trash-alt"></i> Effacer trajectoire
+                        </button>
+                    </div>
+                </div>
+                
+                <form id="preachingForm">
+                    <input type="hidden" id="editingId" name="editingId" value="">
+                    <input type="hidden" id="gpsCoordinates" name="gpsCoordinates" value="">
+                    <input type="hidden" id="gpsTrajectory" name="gpsTrajectory" value="">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date"><i class="fas fa-calendar-alt"></i> Date</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="location"><i class="fas fa-map-marker-alt"></i> Lieu</label>
+                            <input type="text" id="location" name="location" placeholder="Lieu de prédication" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="group"><i class="fas fa-users"></i> Groupe</label>
+                            <select id="group" name="group" required>
+                                <option value="">Sélectionnez un groupe</option>
+                                <option value="Groupe 1">Groupe 1</option>
+                                <option value="Groupe 2">Groupe 2</option>
+                                <option value="Groupe 3">Groupe 3</option>
+                                <option value="Groupe 4">Groupe 4</option>
+                                <option value="Groupe 5">Groupe 5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="neighborhood"><i class="fas fa-city"></i> Quartier</label>
+                            <input type="text" id="neighborhood" name="neighborhood" placeholder="Quartier" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="preaching"><i class="fas fa-book"></i> Notes</label>
+                            <textarea id="preaching" name="preaching" rows="4" placeholder="Notes de prédication..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="button" id="importBtn" class="btn btn-import">
+                            <i class="fas fa-file-import"></i> Importer
+                        </button>
+                        <button type="button" id="exportBtn" class="btn btn-export">
+                            <i class="fas fa-file-export"></i> Exporter
+                        </button>
+                        <button type="button" id="whatsappBtn" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button type="submit" id="saveBtn" class="btn btn-success">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                        <button type="button" id="resetRdvBtn" class="btn btn-danger-outline">
+                            <i class="fas fa-trash-alt"></i> Supprimer tout
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET CAHIER ===== -->
+        <div id="cahier-tab" class="tab-content">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-book"></i>
+                    <span id="activityFormTitle">Nouvelle activité</span>
+                </div>
+                <div id="activityFormMode" class="form-mode-indicator">Mode édition</div>
+            </div>
+            
+            <div class="gps-section">
+                <h3><i class="fas fa-map-marker-alt"></i> Géolocalisation GPS (Activité)</h3>
+                
+                <div class="gps-coordinates">
+                    <div class="gps-coordinate">
+                        <label for="activityLatitude"><i class="fas fa-arrows-up-down"></i> Latitude</label>
+                        <input type="text" id="activityLatitude" name="activityLatitude" readonly placeholder="Cliquez sur 'Obtenir GPS'">
+                    </div>
+                    <div class="gps-coordinate">
+                        <label for="activityLongitude"><i class="fas fa-arrows-left-right"></i> Longitude</label>
+                        <input type="text" id="activityLongitude" name="activityLongitude" readonly placeholder="Cliquez sur 'Obtenir GPS'">
+                    </div>
+                    <div class="gps-coordinate">
+                        <label for="activityAccuracy"><i class="fas fa-crosshairs"></i> Précision</label>
+                        <input type="text" id="activityAccuracy" name="activityAccuracy" readonly placeholder="Mètres">
+                    </div>
+                </div>
+                
+                <div class="gps-info" id="activityGpsStatus">
+                    Statut GPS: <span class="gps-status inactive" id="activityGpsStatusText">Non actif</span>
+                </div>
+                
+                <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                    <button type="button" id="activityGetGpsBtn" class="btn btn-gps">
+                        <i class="fas fa-satellite"></i> Obtenir position
+                    </button>
+                    <button type="button" id="activityClearGpsBtn" class="btn" style="background-color: #757575; color: white;">
+                        <i class="fas fa-trash-alt"></i> Effacer GPS
+                    </button>
+                    <button type="button" id="activityViewMapBtn" class="btn btn-map">
+                        <i class="fas fa-external-link-alt"></i> Voir sur carte
+                    </button>
+                    <button type="button" id="jwOpenBtn" class="btn-jw-icon">
+                        <span class="jw-icon">JW</span> JW.ORG
+                    </button>
+                </div>
+            </div>
+            
+            <div class="activity-form" style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                <form id="activityForm">
+                    <input type="hidden" id="editingActivityId" name="editingActivityId" value="">
+                    <input type="hidden" id="activityGpsCoordinates" name="activityGpsCoordinates" value="">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="personName"><i class="fas fa-user"></i> Nom étude</label>
+                            <input type="text" id="personName" name="personName" placeholder="Nom de la personne" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="theme"><i class="fas fa-book-open"></i> Thème</label>
+                            <input type="text" id="theme" name="theme" placeholder="Sujet abordé" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nextVisitDate"><i class="fas fa-calendar-day"></i> Prochaine visite</label>
+                            <input type="date" id="nextVisitDate" name="nextVisitDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nextVisitTime"><i class="fas fa-clock"></i> Heure</label>
+                            <input type="time" id="nextVisitTime" name="nextVisitTime" required>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="submit" id="saveActivityBtn" class="btn btn-success">
+                            <i class="fas fa-save"></i> Ajouter
+                        </button>
+                        <button type="button" id="clearActivityForm" class="btn btn-primary">
+                            <i class="fas fa-eraser"></i> Effacer
+                        </button>
+                        <button type="button" id="activityWhatsAppBtn" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button type="button" id="resetCahierBtn" class="btn btn-danger-outline">
+                            <i class="fas fa-trash-alt"></i> Supprimer tout
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="notes-section" style="background-color: rgba(255, 248, 225, 0.9); padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #d4a017;">
+                <h3 style="color: #1a472a; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <i class="fas fa-pencil-alt"></i> Préparation de la prochaine visite
+                </h3>
+                
+                <form id="notesForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="noteDate"><i class="fas fa-calendar-alt"></i> Date</label>
+                            <input type="date" id="noteDate" name="noteDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="noteSubject"><i class="fas fa-book-open"></i> Sujet / Verset</label>
+                            <input type="text" id="noteSubject" name="noteSubject" placeholder="Ex: Jean 3:16" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="noteContent"><i class="fas fa-sticky-note"></i> Notes</label>
+                            <textarea id="noteContent" name="noteContent" rows="4" placeholder="Notez vos réflexions, questions..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons" style="margin-top: 10px;">
+                        <button type="submit" id="saveNoteBtn" class="btn btn-success">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                        <button type="reset" id="clearNoteForm" class="btn" style="background-color: #757575; color: white;">
+                            <i class="fas fa-eraser"></i> Effacer
+                        </button>
+                        <button type="button" id="resetNotesBtn" class="btn btn-danger-outline">
+                            <i class="fas fa-trash-alt"></i> Supprimer toutes les notes
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="notes-list" id="notesList">
+                    <div class="empty-list" style="padding: 15px;">
+                        <i class="fas fa-sticky-note"></i>
+                        <h3 style="font-size: 0.95rem;">Aucune note</h3>
+                        <p>Commencez à préparer votre prochaine visite</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 12px; color: #1a472a; font-size: clamp(0.95rem, 1.5vw, 1.1rem); margin-top: 20px;">
+                <i class="fas fa-book"></i> Entrées du cahier
+            </h3>
+            
+            <div id="activityList">
+                <div class="empty-list">
+                    <i class="fas fa-book-open"></i>
+                    <h3>Cahier d'activité vide</h3>
+                    <p>Ajoutez votre première entrée</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET CARTE ===== -->
+        <div id="carte-tab" class="tab-content">
+            <div id="carteAccessDenied" class="access-denied" style="display: none;">
+                <h4><i class="fas fa-lock"></i> Accès Restreint</h4>
+                <p>L'accès à l'onglet CARTE est réservé aux administrateurs.</p>
+                <button type="button" class="btn btn-primary login-from-denied-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </div>
+            
+            <div id="carteContent" style="display: none;">
+                <div class="form-header">
+                    <div class="form-title">
+                        <i class="fas fa-map"></i>
+                        <span id="carteFormTitle">Nouvelle fiche</span>
+                    </div>
+                    <div id="carteFormMode" class="form-mode-indicator">Mode édition</div>
+                </div>
+                
+                <div class="gps-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Géolocalisation GPS (Carte)</h3>
+                    
+                    <div class="gps-coordinates">
+                        <div class="gps-coordinate">
+                            <label for="carteLatitude"><i class="fas fa-arrows-up-down"></i> Latitude</label>
+                            <input type="text" id="carteLatitude" name="carteLatitude" readonly placeholder="Cliquez sur 'Obtenir GPS'">
+                        </div>
+                        <div class="gps-coordinate">
+                            <label for="carteLongitude"><i class="fas fa-arrows-left-right"></i> Longitude</label>
+                            <input type="text" id="carteLongitude" name="carteLongitude" readonly placeholder="Cliquez sur 'Obtenir GPS'">
+                        </div>
+                        <div class="gps-coordinate">
+                            <label for="carteAccuracy"><i class="fas fa-crosshairs"></i> Précision</label>
+                            <input type="text" id="carteAccuracy" name="carteAccuracy" readonly placeholder="Mètres">
+                        </div>
+                    </div>
+                    
+                    <div class="gps-info" id="carteGpsStatus">
+                        Statut GPS: <span class="gps-status inactive" id="carteGpsStatusText">Non actif</span>
+                    </div>
+                    
+                    <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button type="button" id="carteGetGpsBtn" class="btn btn-gps">
+                            <i class="fas fa-satellite"></i> Obtenir position
+                        </button>
+                        <button type="button" id="carteClearGpsBtn" class="btn" style="background-color: #757575; color: white;">
+                            <i class="fas fa-trash-alt"></i> Effacer GPS
+                        </button>
+                        <button type="button" id="carteViewMapBtn" class="btn btn-map">
+                            <i class="fas fa-external-link-alt"></i> Voir sur carte
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="carte-form" style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                    <form id="carteForm">
+                        <input type="hidden" id="editingCarteId" name="editingCarteId" value="">
+                        <input type="hidden" id="carteGpsCoordinates" name="carteGpsCoordinates" value="">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="carteName"><i class="fas fa-user"></i> Nom</label>
+                                <input type="text" id="carteName" name="carteName" placeholder="Nom complet" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="carteType"><i class="fas fa-user-tag"></i> Statut</label>
+                                <select id="carteType" name="carteType" required>
+                                    <option value="">Sélectionnez</option>
+                                    <option value="Frère">Frère</option>
+                                    <option value="Sœur">Sœur</option>
+                                    <option value="Famille">Famille</option>
+                                    <option value="Ancien">Ancien</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cartePhone"><i class="fas fa-phone"></i> Téléphone</label>
+                                <input type="tel" id="cartePhone" name="cartePhone" placeholder="Numéro" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="carteCongregation">
+                                    <span class="jw-congregation-icon">JW</span> Congrégation
+                                </label>
+                                <input type="text" id="carteCongregation" name="carteCongregation" placeholder="Congrégation" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="carteBaptized"><i class="fas fa-droplet"></i> Baptisé</label>
+                                <select id="carteBaptized" name="carteBaptized">
+                                    <option value="">Sélectionnez</option>
+                                    <option value="oui">Oui</option>
+                                    <option value="non">Non</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="carteGroup"><i class="fas fa-users"></i> Groupe</label>
+                                <select id="carteGroup" name="carteGroup">
+                                    <option value="">Sélectionnez</option>
+                                    <option value="Groupe 1">Groupe 1</option>
+                                    <option value="Groupe 2">Groupe 2</option>
+                                    <option value="Groupe 3">Groupe 3</option>
+                                    <option value="Groupe 4">Groupe 4</option>
+                                    <option value="Groupe 5">Groupe 5</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="submit" id="saveCarteBtn" class="btn btn-success">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                            <button type="button" id="carteWhatsAppBtn" class="btn btn-whatsapp">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </button>
+                            <button type="button" id="resetCarteBtn" class="btn btn-danger-outline">
+                                <i class="fas fa-trash-alt"></i> Supprimer toutes les fiches
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <h3 style="margin-bottom: 12px; color: #1a472a; font-size: clamp(0.95rem, 1.5vw, 1.1rem);">
+                    <i class="fas fa-users"></i> Liste des frères et sœurs
+                </h3>
+                
+                <div id="carteList">
+                    <div class="empty-list">
+                        <i class="fas fa-map"></i>
+                        <h3>Aucune fiche</h3>
+                        <p>Ajoutez votre première fiche</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET RAPPORT ===== -->
+        <div id="rapport-tab" class="tab-content">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-file-alt"></i>
+                    <span id="rapportFormTitle">Rapport d'activité mensuel</span>
+                </div>
+            </div>
+            
+            <div class="rapport-form">
+                <form id="rapportForm">
+                    <h3 class="section-title">
+                        <i class="fas fa-user-circle"></i> Informations personnelles
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rapportNom"><i class="fas fa-user"></i> Nom</label>
+                            <input type="text" id="rapportNom" name="rapportNom" placeholder="Votre nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rapportPrenoms"><i class="fas fa-user-friends"></i> Prénoms</label>
+                            <input type="text" id="rapportPrenoms" name="rapportPrenoms" placeholder="Vos prénoms" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rapportCongregation">
+                                <span class="jw-congregation-icon">JW</span> Congrégation
+                            </label>
+                            <input type="text" id="rapportCongregation" name="rapportCongregation" placeholder="Votre congrégation" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rapportVille"><i class="fas fa-city"></i> Ville</label>
+                            <input type="text" id="rapportVille" name="rapportVille" placeholder="Votre ville" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rapportGroupe"><i class="fas fa-users"></i> Groupe</label>
+                            <select id="rapportGroupe" name="rapportGroupe" required>
+                                <option value="">Sélectionnez</option>
+                                <option value="Groupe 1">Groupe 1</option>
+                                <option value="Groupe 2">Groupe 2</option>
+                                <option value="Groupe 3">Groupe 3</option>
+                                <option value="Groupe 4">Groupe 4</option>
+                                <option value="Groupe 5">Groupe 5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rapportMois"><i class="fas fa-calendar"></i> Mois</label>
+                            <input type="month" id="rapportMois" name="rapportMois" required>
+                        </div>
+                    </div>
+                    
+                    <h3 class="section-title">
+                        <i class="fas fa-bullhorn"></i> Activités
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-question-circle"></i> Avez-vous prêché ?</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="precheOui" name="aPreche" value="oui" required>
+                                    <label for="precheOui">Oui</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="precheNon" name="aPreche" value="non">
+                                    <label for="precheNon">Non</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-tasks"></i> Types d'activités</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="typePresentoir" name="typePresentoir" value="Présentoir">
+                                    <label for="typePresentoir">Présentoir</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="typeFormelle" name="typeFormelle" value="Formelle">
+                                    <label for="typeFormelle">Formelle</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="typeInformelle" name="typeInformelle" value="Informelle">
+                                    <label for="typeInformelle">Informelle</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="typePublique" name="typePublique" value="Publique">
+                                    <label for="typePublique">Publique</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="typeLieuPublic" name="typeLieuPublic" value="Visite de lieu public">
+                                    <label for="typeLieuPublic">Lieu public</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="typePrison" name="typePrison" value="Visite dans une prison">
+                                    <label for="typePrison">Prison</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="typeAdministratif" name="typeAdministratif" value="Lieux administratifs">
+                                    <label for="typeAdministratif">Administratif</label>
+                                </div>
+                            </div>
+                            <div class="form-help">Cochez toutes les activités menées</div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="section-title">
+                        <i class="fas fa-book-open"></i> Études bibliques
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="etudesNouvelles"><i class="fas fa-star"></i> Nouvelles</label>
+                            <input type="number" id="etudesNouvelles" name="etudesNouvelles" min="0" class="number-input" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="etudesAnciennes"><i class="fas fa-history"></i> Anciennes</label>
+                            <input type="number" id="etudesAnciennes" name="etudesAnciennes" min="0" class="number-input" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-line"></i> Fréquence
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nbPresentoir"><i class="fas fa-people-carry"></i> Présentoir</label>
+                            <input type="number" id="nbPresentoir" name="nbPresentoir" min="0" class="number-input" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nbFormelle"><i class="fas fa-user-tie"></i> Formelle</label>
+                            <input type="number" id="nbFormelle" name="nbFormelle" min="0" class="number-input" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nbInformelle"><i class="fas fa-comments"></i> Informelle</label>
+                            <input type="number" id="nbInformelle" name="nbInformelle" min="0" class="number-input" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nbPublique"><i class="fas fa-bullhorn"></i> Publique</label>
+                            <input type="number" id="nbPublique" name="nbPublique" min="0" class="number-input" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <h3 class="section-title">
+                        <i class="fas fa-sticky-note"></i> Observations
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rapportObservations"><i class="fas fa-edit"></i> Remarques</label>
+                            <textarea id="rapportObservations" name="rapportObservations" rows="4" placeholder="Observations, difficultés, succès..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <h3 class="section-title">
+                        <i class="fab fa-whatsapp"></i> Envoi
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="whatsappNumber"><i class="fas fa-phone-alt"></i> Numéro WhatsApp</label>
+                            <input type="tel" id="whatsappNumber" name="whatsappNumber" value="+22892871605" required>
+                            <div class="form-help">Modifiable selon votre groupe</div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="button" id="previsualiserRapport" class="btn btn-primary">
+                            <i class="fas fa-eye"></i> Prévisualiser
+                        </button>
+                        <button type="button" id="envoyerRapportWhatsApp" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Envoyer
+                        </button>
+                        <button type="button" id="sauvegarderRapport" class="btn btn-success">
+                            <i class="fas fa-save"></i> Sauvegarder
+                        </button>
+                        <button type="reset" id="effacerRapport" class="btn" style="background-color: #757575; color: white;">
+                            <i class="fas fa-eraser"></i> Effacer
+                        </button>
+                        <button type="button" id="resetRapportBtn" class="btn btn-danger-outline">
+                            <i class="fas fa-trash-alt"></i> Supprimer tous les rapports
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="previsualisationRapport" style="display: none; margin-top: 20px;">
+                <h3 style="margin-bottom: 12px; color: #1a472a; font-size: clamp(0.95rem, 1.5vw, 1.1rem);">
+                    <i class="fas fa-eye"></i> Prévisualisation
+                </h3>
+                <div id="rapportPreview" style="background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto;"></div>
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET RÉUNION ===== -->
+        <div id="reunion-tab" class="tab-content">
+            <div id="reunionAccessDenied" class="access-denied" style="display: none;">
+                <h4><i class="fas fa-lock"></i> Accès Restreint</h4>
+                <p>L'accès à l'onglet Réunion est réservé aux administrateurs.</p>
+                <button type="button" class="btn btn-primary login-from-denied-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </div>
+            
+            <div id="reunionContent" style="display: none;">
+                <div class="form-header">
+                    <div class="form-title">
+                        <span class="jw-icon-badge lg">JW</span>
+                        <span id="reunionFormTitle">Programme des Réunions</span>
+                    </div>
+                </div>
+                
+                <div class="reunion-form">
+                    <form id="reunionForm">
+                        <div class="sous-section">
+                            <h4><span class="jw-icon-badge lg">JW</span> Réunions Principales</h4>
+                            <div class="topic-row">
+                                <label for="discoursBibliqueTheme">Discours Biblique :</label>
+                                <input type="text" id="discoursBibliqueTheme" name="discoursBibliqueTheme" placeholder="Thème du discours" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="tourDeGardeTheme">Tour de Garde :</label>
+                                <input type="text" id="tourDeGardeTheme" name="tourDeGardeTheme" placeholder="Thème de la Tour de Garde" class="medium-input">
+                            </div>
+                        </div>
+                        
+                        <div class="sous-section">
+                            <h4><i class="fas fa-calendar-week"></i> Semaine Spéciale</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="semaineSpatialeDate">Date de la semaine :</label>
+                                    <input type="date" id="semaineSpatialeDate" name="semaineSpatialeDate">
+                                </div>
+                                <div class="form-group">
+                                    <label for="surveillantVisite">Surveillant :</label>
+                                    <input type="text" id="surveillantVisite" name="surveillantVisite" placeholder="Nom du surveillant">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="debutReunion">Début :</label>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        <input type="date" id="debutReunionDate" name="debutReunionDate" style="flex: 1 1 140px;">
+                                        <input type="time" id="debutReunionHeure" name="debutReunionHeure" style="flex: 1 1 100px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="periodesRendezVous">Rendez-vous :</label>
+                                    <textarea id="periodesRendezVous" name="periodesRendezVous" rows="3" placeholder="Ex: Lundi 14h - Salle du Royaume"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sous-section">
+                            <h4><span class="jw-icon-badge lg">JW</span> Assemblée</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="assembleeTheme">Thème :</label>
+                                    <input type="text" id="assembleeTheme" name="assembleeTheme" placeholder="Thème de l'assemblée">
+                                </div>
+                                <div class="form-group">
+                                    <label for="assembleeType">Type :</label>
+                                    <select id="assembleeType" name="assembleeType">
+                                        <option value="">Sélectionnez</option>
+                                        <option value="1 jour">1 jour</option>
+                                        <option value="2 jours">2 jours</option>
+                                        <option value="3 jours">3 jours</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="assembleeLieu">Lieu :</label>
+                                    <input type="text" id="assembleeLieu" name="assembleeLieu" placeholder="Lieu de l'assemblée">
+                                </div>
+                                <div class="form-group">
+                                    <label for="assembleeHeureDebut">Heure début :</label>
+                                    <input type="time" id="assembleeHeureDebut" name="assembleeHeureDebut">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sous-section">
+                            <h4><i class="fas fa-book-open"></i> Étude - Partie 1</h4>
+                            <div class="topic-row">
+                                <label for="joyauxParole">Joyaux de la Parole :</label>
+                                <input type="text" id="joyauxParole" name="joyauxParole" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="perlesSpirituelles">Perles Spirituelles :</label>
+                                <input type="text" id="perlesSpirituelles" name="perlesSpirituelles" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="lectureBible">Lecture de la Bible :</label>
+                                <input type="text" id="lectureBible" name="lectureBible" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="appliqueMinistry">Applique-toi au ministère :</label>
+                                <input type="text" id="appliqueMinistry" name="appliqueMinistry" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="sujet4">Sujet 4 :</label>
+                                <input type="text" id="sujet4" name="sujet4" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="sujet5">Sujet 5 :</label>
+                                <input type="text" id="sujet5" name="sujet5" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="sujet6">Sujet 6 :</label>
+                                <input type="text" id="sujet6" name="sujet6" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                        </div>
+                        
+                        <div class="sous-section">
+                            <h4><i class="fas fa-heart"></i> Étude - Partie 2</h4>
+                            <div class="topic-row">
+                                <label for="vieChretienne">Vie Chrétienne :</label>
+                                <input type="text" id="vieChretienne" name="vieChretienne" placeholder="Élève(s) et sujet" class="medium-input">
+                            </div>
+                            <div class="topic-row">
+                                <label for="etudeBibliqueAssemblee">Étude Biblique :</label>
+                                <input type="text" id="etudeBibliqueAssemblee" name="etudeBibliqueAssemblee" placeholder="Thème et participants" class="medium-input">
+                            </div>
+                        </div>
+                        
+                        <div class="sous-section">
+                            <h4><i class="fab fa-whatsapp"></i> Envoi</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="whatsappGroupLink">Lien du groupe :</label>
+                                    <div class="link-input-group">
+                                        <input type="text" id="whatsappGroupLink" name="whatsappGroupLink" value="https://chat.whatsapp.com/" placeholder="Lien du groupe WhatsApp">
+                                        <button type="button" id="testWhatsappLink" class="test-whatsapp-btn">
+                                            <i class="fas fa-external-link-alt"></i> Tester
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="messageComplementaire">Message complémentaire :</label>
+                                    <textarea id="messageComplementaire" name="messageComplementaire" rows="3" placeholder="Ajoutez un message personnel..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="button" id="previsualiserReunion" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> Prévisualiser
+                            </button>
+                            <button type="button" id="envoyerReunionWhatsApp" class="btn btn-whatsapp">
+                                <i class="fab fa-whatsapp"></i> Envoyer
+                            </button>
+                            <button type="button" id="sauvegarderReunion" class="btn btn-success">
+                                <i class="fas fa-save"></i> Sauvegarder
+                            </button>
+                            <button type="reset" id="effacerReunion" class="btn" style="background-color: #757575; color: white;">
+                                <i class="fas fa-eraser"></i> Effacer
+                            </button>
+                            <button type="button" id="resetReunionBtn" class="btn btn-danger-outline">
+                                <i class="fas fa-trash-alt"></i> Supprimer tous les programmes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="previsualisationReunion" style="display: none; margin-top: 20px;">
+                    <h3 style="margin-bottom: 12px; color: #1a472a; font-size: clamp(0.95rem, 1.5vw, 1.1rem);">
+                        <i class="fas fa-eye"></i> Prévisualisation
+                    </h3>
+                    <div id="reunionPreview" style="background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET LISTE ===== -->
+        <div id="liste-tab" class="tab-content">
+            <div id="listeAccessDenied" class="access-denied" style="display: none;">
+                <h4><i class="fas fa-lock"></i> Accès Restreint</h4>
+                <p>L'accès à l'onglet Liste est réservé aux administrateurs.</p>
+                <button type="button" class="btn btn-primary login-from-denied-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </div>
+            
+            <div id="listeContent" style="display: none;">
+                <div class="list-content" style="padding: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                        <h2 style="color: #1a472a; font-size: clamp(1.1rem, 2vw, 1.3rem);">
+                            <i class="fas fa-list"></i> Liste des prédications
+                        </h2>
+                        <button type="button" id="resetListeBtn" class="btn btn-danger-outline" style="min-width: auto; padding: 6px 14px;">
+                            <i class="fas fa-trash-alt"></i> Supprimer tout
+                        </button>
+                    </div>
+                    <div id="preachingList">
+                        <div class="empty-list">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>Aucune prédication</h3>
+                            <p>Ajoutez une prédication</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET STATISTIQUES ===== -->
+        <div id="statistiques-tab" class="tab-content">
+            <div id="statsAccessDenied" class="access-denied" style="display: none;">
+                <h4><i class="fas fa-lock"></i> Accès Restreint</h4>
+                <p>L'accès aux statistiques est réservé aux administrateurs.</p>
+                <button type="button" class="btn btn-primary login-from-denied-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </div>
+            
+            <div id="statsContent" style="display: none;">
+                <div class="list-content" style="padding: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                        <h2 style="color: #1a472a; font-size: clamp(1.1rem, 2vw, 1.3rem);">
+                            <i class="fas fa-chart-bar"></i> Statistiques
+                        </h2>
+                        <button type="button" id="resetStatsBtn" class="btn btn-danger-outline" style="min-width: auto; padding: 6px 14px;">
+                            <i class="fas fa-trash-alt"></i> Réinitialiser
+                        </button>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <h3 style="color: #1a472a; font-size: clamp(0.8rem, 1.2vw, 0.95rem);">Total</h3>
+                            <div id="totalPublishers" class="stat-value">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-droplet" style="color: #4caf50;"></i></div>
+                            <h3 style="color: #1a472a; font-size: clamp(0.8rem, 1.2vw, 0.95rem);">Baptisés</h3>
+                            <div id="totalBaptized" class="stat-value" style="color: #4caf50;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-droplet" style="color: #ff9800;"></i></div>
+                            <h3 style="color: #1a472a; font-size: clamp(0.8rem, 1.2vw, 0.95rem);">Non baptisés</h3>
+                            <div id="totalUnbaptized" class="stat-value" style="color: #ff9800;">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <h3 style="color: #1a472a; font-size: clamp(0.8rem, 1.2vw, 0.95rem);">Avec GPS</h3>
+                            <div id="totalWithGps" class="stat-value" style="color: #1976d2;">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="group-stats-container" id="groupStatsContainer">
+                        <!-- Les statistiques par groupe seront injectées ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== ONGLET SONO ===== -->
+        <div id="sono-tab" class="tab-content">
+            <div id="sonoAccessDenied" class="access-denied" style="display: none;">
+                <h4><i class="fas fa-lock"></i> Accès Restreint</h4>
+                <p>L'accès à l'onglet Sono est réservé aux administrateurs.</p>
+                <button type="button" class="btn btn-primary login-from-denied-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </div>
+            
+            <div id="sonoContent" style="display: none;">
+                <div class="form-header">
+                    <div class="form-title">
+                        <i class="fas fa-microphone"></i>
+                        <span id="sonoFormTitle">Gestion de la Sonorisation</span>
+                    </div>
+                </div>
+                
+                <div class="sono-section">
+                    <h4><i class="fas fa-volume-up"></i> Sonorisation</h4>
+                    <div id="sonoList">
+                        <div class="empty-list" style="padding: 12px;">
+                            <i class="fas fa-users"></i>
+                            <p>Aucun frère enregistré</p>
+                        </div>
+                    </div>
+                    <div class="sono-add-form">
+                        <input type="text" id="sonoNameInput" placeholder="Nom du frère">
+                        <button type="button" id="addSonoBtn" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                        <button type="button" id="resetSonoListBtn" class="btn btn-danger-outline" style="min-width: auto;">
+                            <i class="fas fa-trash-alt"></i> Tout supprimer
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sono-section">
+                    <h4><i class="fas fa-microphone-alt"></i> Baladage des micros</h4>
+                    <div id="microList">
+                        <div class="empty-list" style="padding: 12px;">
+                            <i class="fas fa-users"></i>
+                            <p>Aucun frère enregistré</p>
+                        </div>
+                    </div>
+                    <div class="sono-add-form">
+                        <input type="text" id="microNameInput" placeholder="Nom du frère">
+                        <button type="button" id="addMicroBtn" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                        <button type="button" id="resetMicroListBtn" class="btn btn-danger-outline" style="min-width: auto;">
+                            <i class="fas fa-trash-alt"></i> Tout supprimer
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sono-section" style="border-color: #d4a017;">
+                    <h4><i class="fas fa-calendar-alt"></i> Programmation</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sonoReunionDate"><i class="fas fa-calendar-day"></i> Date</label>
+                            <input type="date" id="sonoReunionDate" name="sonoReunionDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="sonoReunionTime"><i class="fas fa-clock"></i> Heure</label>
+                            <input type="time" id="sonoReunionTime" name="sonoReunionTime">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sonoReunionType"><i class="fas fa-tag"></i> Type</label>
+                            <select id="sonoReunionType" name="sonoReunionType">
+                                <option value="">Sélectionnez</option>
+                                <option value="Réunion de semaine">Réunion de semaine</option>
+                                <option value="Réunion d'assemblée">Réunion d'assemblée</option>
+                                <option value="Réunion spéciale">Réunion spéciale</option>
+                                <option value="Réunion de circonscription">Réunion de circonscription</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sonoReunionLocation"><i class="fas fa-map-marker-alt"></i> Lieu</label>
+                            <input type="text" id="sonoReunionLocation" name="sonoReunionLocation" placeholder="Lieu de la réunion">
+                        </div>
+                    </div>
+                    
+                    <div class="sono-planning">
+                        <h4><i class="fas fa-clipboard-list"></i> Planning</h4>
+                        <div class="planning-item">
+                            <span class="planning-label">Sonorisation :</span>
+                            <span id="sonoPlanningSono">Aucun frère assigné</span>
+                        </div>
+                        <div class="planning-item">
+                            <span class="planning-label">Baladage micros :</span>
+                            <span id="sonoPlanningMicro">Aucun frère assigné</span>
+                        </div>
+                        <div class="planning-item">
+                            <span class="planning-label">Date :</span>
+                            <span id="sonoPlanningDate">Non définie</span>
+                        </div>
+                        <div class="planning-item">
+                            <span class="planning-label">Heure :</span>
+                            <span id="sonoPlanningTime">Non définie</span>
+                        </div>
+                        <div class="planning-item">
+                            <span class="planning-label">Type :</span>
+                            <span id="sonoPlanningType">Non défini</span>
+                        </div>
+                        <div class="planning-item">
+                            <span class="planning-label">Lieu :</span>
+                            <span id="sonoPlanningLocation">Non défini</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <label for="sonoWhatsappGroup"><i class="fab fa-whatsapp"></i> Lien WhatsApp</label>
+                        <div class="link-input-group">
+                            <input type="text" id="sonoWhatsappGroup" name="sonoWhatsappGroup" value="https://chat.whatsapp.com/" placeholder="Lien du groupe WhatsApp">
+                            <button type="button" id="testSonoWhatsappLink" class="test-whatsapp-btn">
+                                <i class="fas fa-external-link-alt"></i> Tester
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" id="previsualiserSono" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Prévisualiser
+                    </button>
+                    <button type="button" id="envoyerSonoWhatsApp" class="btn btn-whatsapp">
+                        <i class="fab fa-whatsapp"></i> Envoyer
+                    </button>
+                    <button type="button" id="sauvegarderSono" class="btn btn-success">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                    <button type="button" id="resetSonoPlanningBtn" class="btn btn-danger-outline">
+                        <i class="fas fa-trash-alt"></i> Supprimer tous les plannings
+                    </button>
+                </div>
+                
+                <div id="previsualisationSono" style="display: none; margin-top: 20px;">
+                    <h3 style="margin-bottom: 12px; color: #1a472a; font-size: clamp(0.95rem, 1.5vw, 1.1rem);">
+                        <i class="fas fa-eye"></i> Prévisualisation
+                    </h3>
+                    <div id="sonoPreview" style="background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Application "Prêchons" - Suivi des activités de prédication</p>
+            <p>Numéro WhatsApp : <strong>+228 92871605</strong></p>
+        </footer>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+    
+    <script>
+        // ===== VARIABLES GLOBALES =====
+        let preachings = JSON.parse(localStorage.getItem('preachings')) || [];
+        let activities = JSON.parse(localStorage.getItem('activities')) || [];
+        let cartes = JSON.parse(localStorage.getItem('cartes')) || [];
+        let rapports = JSON.parse(localStorage.getItem('rapports')) || [];
+        let reunions = JSON.parse(localStorage.getItem('reunions')) || [];
+        let preparationNotes = JSON.parse(localStorage.getItem('preparationNotes')) || [];
+        let sonoBrothers = JSON.parse(localStorage.getItem('sonoBrothers')) || [];
+        let microBrothers = JSON.parse(localStorage.getItem('microBrothers')) || [];
+        let sonoPlannings = JSON.parse(localStorage.getItem('sonoPlannings')) || [];
+        
+        let isAuthenticated = false;
+        let authenticatedUser = '';
+        let userRole = '';
+        let trajectoryPoints = [];
+        let gpsWatchId = null;
+        let currentPosition = null;
+        let isGettingGps = false;
+        
+        const users = {
+            'admin': { password: 'admin123', role: 'admin' },
+            'Assemblée locale': { password: 'Kara', role: 'public' }
+        };
+        
+        const adminTabs = ['rdv', 'carte', 'reunion', 'liste', 'statistiques', 'sono'];
+        const publicTabs = ['cahier', 'rapport'];
+        
+        // ===== ÉLÉMENTS DOM =====
+        const authContainer = document.getElementById('authContainer');
+        const mainContainer = document.getElementById('mainContainer');
+        const authForm = document.getElementById('authForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const authError = document.getElementById('authError');
+        const currentUser = document.getElementById('currentUser');
+        const userRoleElement = document.getElementById('userRole');
+        const userInfo = document.getElementById('userInfo');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const tabsContainer = document.getElementById('tabsContainer');
+        
+        // ===========================================
+        // AUTHENTIFICATION
+        // ===========================================
+        
+        function checkAuthentication() {
+            const savedAuth = localStorage.getItem('prechons_auth');
+            if (savedAuth) {
+                try {
+                    const authData = JSON.parse(savedAuth);
+                    if (authData.authenticated && users[authData.user]) {
+                        isAuthenticated = true;
+                        authenticatedUser = authData.user;
+                        userRole = users[authData.user].role;
+                        showMainInterface();
+                        return;
+                    }
+                } catch (e) { console.error("Erreur d'authentification:", e); }
+            }
+            showAuthInterface();
+        }
+        
+        function showAuthInterface() {
+            authContainer.style.display = 'block';
+            mainContainer.style.display = 'none';
+            authForm.reset();
+            authError.style.display = 'none';
+            setTimeout(() => usernameInput.focus(), 100);
+        }
+        
+        function showMainInterface() {
+            authContainer.style.display = 'none';
+            mainContainer.style.display = 'block';
+            currentUser.textContent = authenticatedUser;
+            userRoleElement.textContent = userRole === 'admin' ? 'Administrateur' : 'Utilisateur';
+            userInfo.style.display = 'flex';
+            updateProtectedTabs();
+            initApplication();
+        }
+        
+        function updateProtectedTabs() {
+            const tabContents = {
+                rdv: { content: 'rdvContent', denied: 'rdvAccessDenied' },
+                carte: { content: 'carteContent', denied: 'carteAccessDenied' },
+                reunion: { content: 'reunionContent', denied: 'reunionAccessDenied' },
+                liste: { content: 'listeContent', denied: 'listeAccessDenied' },
+                statistiques: { content: 'statsContent', denied: 'statsAccessDenied' },
+                sono: { content: 'sonoContent', denied: 'sonoAccessDenied' }
+            };
+            
+            Object.keys(tabContents).forEach(tabId => {
+                const content = document.getElementById(tabContents[tabId].content);
+                const denied = document.getElementById(tabContents[tabId].denied);
+                const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+                
+                if (isAuthenticated && userRole === 'admin') {
+                    if (content) content.style.display = 'block';
+                    if (denied) denied.style.display = 'none';
+                    if (tab) tab.classList.remove('locked-tab');
+                } else {
+                    if (content) content.style.display = 'none';
+                    if (denied) denied.style.display = 'block';
+                    if (tab) tab.classList.add('locked-tab');
+                }
+            });
+            
+            publicTabs.forEach(tabId => {
+                const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+                if (tab) tab.classList.remove('locked-tab');
+            });
+        }
+        
+        authForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (users[username] && users[username].password === password) {
+                isAuthenticated = true;
+                authenticatedUser = username;
+                userRole = users[username].role;
+                
+                localStorage.setItem('prechons_auth', JSON.stringify({
+                    authenticated: true,
+                    user: username,
+                    timestamp: new Date().toISOString()
+                }));
+                
+                showMainInterface();
+                showNotification(`Bienvenue ${authenticatedUser} !`, "success");
+            } else {
+                authError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+                authContainer.classList.add('shake');
+                setTimeout(() => authContainer.classList.remove('shake'), 500);
+            }
+        });
+        
+        document.querySelectorAll('.login-from-denied-btn').forEach(btn => {
+            btn.addEventListener('click', showAuthInterface);
+        });
+        
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
+                    localStorage.removeItem('prechons_auth');
+                    isAuthenticated = false;
+                    authenticatedUser = '';
+                    userRole = '';
+                    showAuthInterface();
+                    showNotification("Déconnecté avec succès", "info");
+                }
+            });
+        }
+        
+        // ===========================================
+        // INITIALISATION
+        // ===========================================
+        
+        function initApplication() {
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            const nextWeekStr = nextWeek.toISOString().split('T')[0];
+            
+            // Dates par défaut
+            const dateInput = document.getElementById('date');
+            if (dateInput) dateInput.value = today;
+            
+            const rapportMois = document.getElementById('rapportMois');
+            if (rapportMois) rapportMois.value = currentMonth;
+            
+            const semaineSpatialeDate = document.getElementById('semaineSpatialeDate');
+            if (semaineSpatialeDate) semaineSpatialeDate.value = nextWeekStr;
+            
+            const debutReunionDate = document.getElementById('debutReunionDate');
+            if (debutReunionDate) {
+                debutReunionDate.value = nextWeekStr;
+                document.getElementById('debutReunionHeure').value = '19:00';
+            }
+            
+            const nextVisitDate = document.getElementById('nextVisitDate');
+            if (nextVisitDate) {
+                nextVisitDate.value = nextWeekStr;
+                document.getElementById('nextVisitTime').value = '10:00';
+            }
+            
+            const noteDate = document.getElementById('noteDate');
+            if (noteDate) noteDate.value = today;
+            
+            const sonoReunionDate = document.getElementById('sonoReunionDate');
+            if (sonoReunionDate) sonoReunionDate.value = nextWeekStr;
+            
+            const sonoReunionTime = document.getElementById('sonoReunionTime');
+            if (sonoReunionTime) sonoReunionTime.value = '19:00';
+            
+            // Mise à jour des listes
+            updatePreachingList();
+            updateActivityList();
+            updateCarteList();
+            updateStatistics();
+            updateGroupStatistics();
+            updateNotesList();
+            updateSonoLists();
+            
+            // ===== BOUTONS DE SUPPRESSION =====
+            
+            // RDV
+            document.getElementById('resetRdvBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer toutes les prédications enregistrées ? Cette action est irréversible.")) {
+                    preachings = [];
+                    localStorage.setItem('preachings', JSON.stringify(preachings));
+                    updatePreachingList();
+                    updateStatistics();
+                    showNotification("Toutes les prédications ont été supprimées", "success");
+                }
+            });
+            
+            // Cahier - Activités
+            document.getElementById('resetCahierBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer toutes les activités enregistrées ? Cette action est irréversible.")) {
+                    activities = [];
+                    localStorage.setItem('activities', JSON.stringify(activities));
+                    updateActivityList();
+                    updateStatistics();
+                    showNotification("Toutes les activités ont été supprimées", "success");
+                }
+            });
+            
+            // Cahier - Notes
+            document.getElementById('resetNotesBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer toutes les notes de préparation ? Cette action est irréversible.")) {
+                    preparationNotes = [];
+                    localStorage.setItem('preparationNotes', JSON.stringify(preparationNotes));
+                    updateNotesList();
+                    showNotification("Toutes les notes ont été supprimées", "success");
+                }
+            });
+            
+            // Carte
+            document.getElementById('resetCarteBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer toutes les fiches des frères et sœurs ? Cette action est irréversible.")) {
+                    cartes = [];
+                    localStorage.setItem('cartes', JSON.stringify(cartes));
+                    updateCarteList();
+                    updateGroupStatistics();
+                    showNotification("Toutes les fiches ont été supprimées", "success");
+                }
+            });
+            
+            // Rapport
+            document.getElementById('resetRapportBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer tous les rapports enregistrés ? Cette action est irréversible.")) {
+                    rapports = [];
+                    localStorage.setItem('rapports', JSON.stringify(rapports));
+                    showNotification("Tous les rapports ont été supprimés", "success");
+                }
+            });
+            
+            // Réunion
+            document.getElementById('resetReunionBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer tous les programmes de réunion ? Cette action est irréversible.")) {
+                    reunions = [];
+                    localStorage.setItem('reunions', JSON.stringify(reunions));
+                    showNotification("Tous les programmes ont été supprimés", "success");
+                }
+            });
+            
+            // Liste
+            document.getElementById('resetListeBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer toutes les prédications de la liste ? Cette action est irréversible.")) {
+                    preachings = [];
+                    localStorage.setItem('preachings', JSON.stringify(preachings));
+                    updatePreachingList();
+                    updateStatistics();
+                    showNotification("Toutes les prédications ont été supprimées", "success");
+                }
+            });
+            
+            // Statistiques - Réinitialisation complète des données des proclamateurs
+            document.getElementById('resetStatsBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Réinitialiser toutes les données des proclamateurs ? Cette action est irréversible.")) {
+                    cartes = [];
+                    localStorage.setItem('cartes', JSON.stringify(cartes));
+                    updateCarteList();
+                    updateGroupStatistics();
+                    showNotification("Les données des proclamateurs ont été réinitialisées", "success");
+                }
+            });
+            
+            // Sono - Liste sonorisation
+            document.getElementById('resetSonoListBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer tous les frères de la sonorisation ? Cette action est irréversible.")) {
+                    sonoBrothers = [];
+                    localStorage.setItem('sonoBrothers', JSON.stringify(sonoBrothers));
+                    updateSonoLists();
+                    showNotification("Liste de sonorisation vidée", "success");
+                }
+            });
+            
+            // Sono - Liste micros
+            document.getElementById('resetMicroListBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer tous les frères du baladage des micros ? Cette action est irréversible.")) {
+                    microBrothers = [];
+                    localStorage.setItem('microBrothers', JSON.stringify(microBrothers));
+                    updateSonoLists();
+                    showNotification("Liste de baladage vidée", "success");
+                }
+            });
+            
+            // Sono - Plannings
+            document.getElementById('resetSonoPlanningBtn').addEventListener('click', function() {
+                if (confirm("⚠️ Supprimer tous les plannings sonorisation ? Cette action est irréversible.")) {
+                    sonoPlannings = [];
+                    localStorage.setItem('sonoPlannings', JSON.stringify(sonoPlannings));
+                    showNotification("Tous les plannings ont été supprimés", "success");
+                }
+            });
+            
+            // Gestion des onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    if (adminTabs.includes(tabId) && (!isAuthenticated || userRole !== 'admin')) {
+                        const tabContent = document.getElementById(`${tabId}-tab`);
+                        if (tabContent) {
+                            const denied = tabContent.querySelector('.access-denied');
+                            const content = tabContent.querySelector('[id$="Content"]');
+                            if (denied) denied.style.display = 'block';
+                            if (content) content.style.display = 'none';
+                        }
+                        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        if (tabContent) tabContent.classList.add('active');
+                        return;
+                    }
+                    
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    const tabContent = document.getElementById(`${tabId}-tab`);
+                    if (tabContent) tabContent.classList.add('active');
+                });
+            });
+            
+            // Bouton JW
+            const jwOpenBtn = document.getElementById('jwOpenBtn');
+            if (jwOpenBtn) {
+                jwOpenBtn.addEventListener('click', function() {
+                    window.open('https://www.jw.org/fr', '_blank');
+                    showNotification("Ouverture de JW.ORG", "info");
+                });
+            }
+            
+            // Notes de préparation
+            const notesForm = document.getElementById('notesForm');
+            if (notesForm) {
+                notesForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    
+                    if (!data.noteDate || !data.noteSubject || !data.noteContent) {
+                        showNotification("Veuillez remplir tous les champs", "warning");
+                        return;
+                    }
+                    
+                    data.id = Date.now();
+                    data.timestamp = new Date().toISOString();
+                    
+                    preparationNotes.push(data);
+                    localStorage.setItem('preparationNotes', JSON.stringify(preparationNotes));
+                    
+                    updateNotesList();
+                    this.reset();
+                    document.getElementById('noteDate').value = new Date().toISOString().split('T')[0];
+                    showNotification("Notes enregistrées !", "success");
+                });
+            }
+            
+            // ===== FONCTIONS GPS =====
+            function getCurrentPosition(onSuccess, onError = null) {
+                if (isGettingGps) {
+                    showNotification("Recherche GPS en cours...", "info");
+                    return;
+                }
+                if (!navigator.geolocation) {
+                    showNotification("La géolocalisation n'est pas supportée", "error");
+                    if (onError) onError();
+                    return;
+                }
+                
+                isGettingGps = true;
+                showNotification("Recherche de la position GPS...", "info");
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        isGettingGps = false;
+                        currentPosition = position;
+                        if (onSuccess) onSuccess(position);
+                        showNotification("Position GPS obtenue !", "success");
+                    },
+                    function(error) {
+                        isGettingGps = false;
+                        let msg = "Erreur GPS: ";
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED: msg += "Permission refusée."; break;
+                            case error.POSITION_UNAVAILABLE: msg += "Position indisponible."; break;
+                            case error.TIMEOUT: msg += "Temps d'attente dépassé."; break;
+                            default: msg += "Erreur inconnue";
+                        }
+                        showNotification(msg, "error");
+                        if (onError) onError();
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+                );
+            }
+            
+            function startTrajectoryTracking() {
+                if (gpsWatchId || !navigator.geolocation) return;
+                showNotification("Démarrage du suivi...", "info");
+                
+                gpsWatchId = navigator.geolocation.watchPosition(
+                    function(position) {
+                        trajectoryPoints.push({
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: new Date().toISOString(),
+                            time: new Date().toLocaleTimeString()
+                        });
+                        updateTrajectoryDisplay();
+                        const section = document.getElementById('trajectorySection');
+                        if (section) section.style.display = 'block';
+                    },
+                    function() { showNotification("Erreur de suivi GPS", "error"); },
+                    { enableHighAccuracy: true, maximumAge: 5000 }
+                );
+            }
+            
+            function stopTrajectoryTracking() {
+                if (gpsWatchId) {
+                    navigator.geolocation.clearWatch(gpsWatchId);
+                    gpsWatchId = null;
+                    showNotification("Suivi arrêté", "info");
+                }
+            }
+            
+            function updateTrajectoryDisplay() {
+                const list = document.getElementById('trajectoryList');
+                if (!list) return;
+                if (trajectoryPoints.length === 0) {
+                    list.innerHTML = '<div class="trajectory-point">Aucun point</div>';
+                    return;
+                }
+                const recent = trajectoryPoints.slice(-10);
+                list.innerHTML = recent.map((p, i) => `
+                    <div class="trajectory-point">
+                        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+                            <strong>Point ${trajectoryPoints.length - recent.length + i + 1}</strong>
+                            <span style="color:#666;font-size:0.8rem;">${p.time}</span>
+                        </div>
+                        <div style="font-size:0.8rem;">Lat: ${p.lat.toFixed(6)}, Lon: ${p.lon.toFixed(6)}</div>
+                        <div style="font-size:0.75rem;color:#888;">Précision: ±${Math.round(p.accuracy)}m</div>
+                    </div>
+                `).join('');
+                list.scrollTop = list.scrollHeight;
+            }
+            
+            function generateGoogleMapsLink(lat, lon) {
+                return `https://www.google.com/maps?q=${lat},${lon}`;
+            }
+            
+            // ===== GPS RDV =====
+            const getGpsBtn = document.getElementById('getGpsBtn');
+            if (getGpsBtn) {
+                getGpsBtn.addEventListener('click', function() {
+                    if (!isAuthenticated || userRole !== 'admin') {
+                        showNotification("Accès réservé aux administrateurs", "warning");
+                        return;
+                    }
+                    getCurrentPosition(function(pos) {
+                        const lat = pos.coords.latitude, lon = pos.coords.longitude, acc = pos.coords.accuracy;
+                        document.getElementById('latitude').value = lat.toFixed(6);
+                        document.getElementById('longitude').value = lon.toFixed(6);
+                        document.getElementById('accuracy').value = `${Math.round(acc)} mètres`;
+                        const status = document.getElementById('gpsStatusText');
+                        if (status) { status.textContent = "Actif"; status.className = "gps-status active"; }
+                        document.getElementById('gpsCoordinates').value = JSON.stringify({ latitude: lat, longitude: lon, accuracy: acc, timestamp: new Date().toISOString() });
+                        startTrajectoryTracking();
+                    });
+                });
+            }
+            
+            const clearGpsBtn = document.getElementById('clearGpsBtn');
+            if (clearGpsBtn) {
+                clearGpsBtn.addEventListener('click', function() {
+                    document.getElementById('latitude').value = '';
+                    document.getElementById('longitude').value = '';
+                    document.getElementById('accuracy').value = '';
+                    document.getElementById('gpsCoordinates').value = '';
+                    const status = document.getElementById('gpsStatusText');
+                    if (status) { status.textContent = "Non actif"; status.className = "gps-status inactive"; }
+                    stopTrajectoryTracking();
+                    trajectoryPoints = [];
+                    updateTrajectoryDisplay();
+                    const section = document.getElementById('trajectorySection');
+                    if (section) section.style.display = 'none';
+                    showNotification("GPS effacé", "info");
+                });
+            }
+            
+            const viewMapBtn = document.getElementById('viewMapBtn');
+            if (viewMapBtn) {
+                viewMapBtn.addEventListener('click', function() {
+                    const lat = document.getElementById('latitude').value;
+                    const lon = document.getElementById('longitude').value;
+                    if (!lat || !lon) { showNotification("Aucune position GPS", "warning"); return; }
+                    window.open(generateGoogleMapsLink(lat, lon), '_blank');
+                });
+            }
+            
+            const clearTrajectoryBtn = document.getElementById('clearTrajectoryBtn');
+            if (clearTrajectoryBtn) {
+                clearTrajectoryBtn.addEventListener('click', function() {
+                    trajectoryPoints = [];
+                    updateTrajectoryDisplay();
+                    showNotification("Trajectoire effacée", "info");
+                });
+            }
+            
+            // ===== GPS CAHIER =====
+            const activityGetGpsBtn = document.getElementById('activityGetGpsBtn');
+            if (activityGetGpsBtn) {
+                activityGetGpsBtn.addEventListener('click', function() {
+                    getCurrentPosition(function(pos) {
+                        const lat = pos.coords.latitude, lon = pos.coords.longitude, acc = pos.coords.accuracy;
+                        document.getElementById('activityLatitude').value = lat.toFixed(6);
+                        document.getElementById('activityLongitude').value = lon.toFixed(6);
+                        document.getElementById('activityAccuracy').value = `${Math.round(acc)} mètres`;
+                        const status = document.getElementById('activityGpsStatusText');
+                        if (status) { status.textContent = "Actif"; status.className = "gps-status active"; }
+                        document.getElementById('activityGpsCoordinates').value = JSON.stringify({ latitude: lat, longitude: lon, accuracy: acc, timestamp: new Date().toISOString() });
+                    });
+                });
+            }
+            
+            const activityClearGpsBtn = document.getElementById('activityClearGpsBtn');
+            if (activityClearGpsBtn) {
+                activityClearGpsBtn.addEventListener('click', function() {
+                    document.getElementById('activityLatitude').value = '';
+                    document.getElementById('activityLongitude').value = '';
+                    document.getElementById('activityAccuracy').value = '';
+                    document.getElementById('activityGpsCoordinates').value = '';
+                    const status = document.getElementById('activityGpsStatusText');
+                    if (status) { status.textContent = "Non actif"; status.className = "gps-status inactive"; }
+                    showNotification("GPS effacé", "info");
+                });
+            }
+            
+            const activityViewMapBtn = document.getElementById('activityViewMapBtn');
+            if (activityViewMapBtn) {
+                activityViewMapBtn.addEventListener('click', function() {
+                    const lat = document.getElementById('activityLatitude').value;
+                    const lon = document.getElementById('activityLongitude').value;
+                    if (!lat || !lon) { showNotification("Aucune position GPS", "warning"); return; }
+                    window.open(generateGoogleMapsLink(lat, lon), '_blank');
+                });
+            }
+            
+            // ===== GPS CARTE =====
+            const carteGetGpsBtn = document.getElementById('carteGetGpsBtn');
+            if (carteGetGpsBtn) {
+                carteGetGpsBtn.addEventListener('click', function() {
+                    if (!isAuthenticated || userRole !== 'admin') {
+                        showNotification("Accès réservé aux administrateurs", "warning");
+                        return;
+                    }
+                    getCurrentPosition(function(pos) {
+                        const lat = pos.coords.latitude, lon = pos.coords.longitude, acc = pos.coords.accuracy;
+                        document.getElementById('carteLatitude').value = lat.toFixed(6);
+                        document.getElementById('carteLongitude').value = lon.toFixed(6);
+                        document.getElementById('carteAccuracy').value = `${Math.round(acc)} mètres`;
+                        const status = document.getElementById('carteGpsStatusText');
+                        if (status) { status.textContent = "Actif"; status.className = "gps-status active"; }
+                        document.getElementById('carteGpsCoordinates').value = JSON.stringify({ latitude: lat, longitude: lon, accuracy: acc, timestamp: new Date().toISOString() });
+                    });
+                });
+            }
+            
+            const carteClearGpsBtn = document.getElementById('carteClearGpsBtn');
+            if (carteClearGpsBtn) {
+                carteClearGpsBtn.addEventListener('click', function() {
+                    document.getElementById('carteLatitude').value = '';
+                    document.getElementById('carteLongitude').value = '';
+                    document.getElementById('carteAccuracy').value = '';
+                    document.getElementById('carteGpsCoordinates').value = '';
+                    const status = document.getElementById('carteGpsStatusText');
+                    if (status) { status.textContent = "Non actif"; status.className = "gps-status inactive"; }
+                    showNotification("GPS effacé", "info");
+                });
+            }
+            
+            const carteViewMapBtn = document.getElementById('carteViewMapBtn');
+            if (carteViewMapBtn) {
+                carteViewMapBtn.addEventListener('click', function() {
+                    const lat = document.getElementById('carteLatitude').value;
+                    const lon = document.getElementById('carteLongitude').value;
+                    if (!lat || !lon) { showNotification("Aucune position GPS", "warning"); return; }
+                    window.open(generateGoogleMapsLink(lat, lon), '_blank');
+                });
+            }
+            
+            // ===== FORMULAIRES =====
+            const preachingForm = document.getElementById('preachingForm');
+            if (preachingForm) {
+                preachingForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    if (!isAuthenticated || userRole !== 'admin') {
+                        showNotification("Accès réservé aux administrateurs", "warning");
+                        return;
+                    }
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    data.timestamp = new Date().toISOString();
+                    data.id = Date.now();
+                    
+                    const gpsCoords = document.getElementById('gpsCoordinates').value;
+                    if (gpsCoords) { try { data.gps = JSON.parse(gpsCoords); } catch(e) {} }
+                    if (trajectoryPoints.length > 0) {
+                        data.trajectory = trajectoryPoints;
+                        document.getElementById('gpsTrajectory').value = JSON.stringify(trajectoryPoints);
+                    }
+                    
+                    preachings.push(data);
+                    localStorage.setItem('preachings', JSON.stringify(preachings));
+                    
+                    updatePreachingList();
+                    updateStatistics();
+                    this.reset();
+                    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                    
+                    document.getElementById('latitude').value = '';
+                    document.getElementById('longitude').value = '';
+                    document.getElementById('accuracy').value = '';
+                    document.getElementById('gpsCoordinates').value = '';
+                    document.getElementById('gpsTrajectory').value = '';
+                    const status = document.getElementById('gpsStatusText');
+                    if (status) { status.textContent = "Non actif"; status.className = "gps-status inactive"; }
+                    stopTrajectoryTracking();
+                    trajectoryPoints = [];
+                    updateTrajectoryDisplay();
+                    const section = document.getElementById('trajectorySection');
+                    if (section) section.style.display = 'none';
+                    showNotification("Prédication enregistrée !", "success");
+                });
+            }
+            
+            const activityForm = document.getElementById('activityForm');
+            if (activityForm) {
+                activityForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    data.timestamp = new Date().toISOString();
+                    data.id = Date.now();
+                    
+                    const gpsCoords = document.getElementById('activityGpsCoordinates').value;
+                    if (gpsCoords) { try { data.gps = JSON.parse(gpsCoords); } catch(e) {} }
+                    
+                    activities.push(data);
+                    localStorage.setItem('activities', JSON.stringify(activities));
+                    
+                    updateActivityList();
+                    updateStatistics();
+                    this.reset();
+                    const nextWeek = new Date();
+                    nextWeek.setDate(nextWeek.getDate() + 7);
+                    document.getElementById('nextVisitDate').value = nextWeek.toISOString().split('T')[0];
+                    document.getElementById('nextVisitTime').value = '10:00';
+                    
+                    document.getElementById('activityLatitude').value = '';
+                    document.getElementById('activityLongitude').value = '';
+                    document.getElementById('activityAccuracy').value = '';
+                    document.getElementById('activityGpsCoordinates').value = '';
+                    const status = document.getElementById('activityGpsStatusText');
+                    if (status) { status.textContent = "Non actif"; status.className = "gps-status inactive"; }
+                    showNotification("Activité enregistrée !", "success");
+                });
+            }
+            
+            const carteForm = document.getElementById('carteForm');
+            if (carteForm) {
+                carteForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    if (!isAuthenticated || userRole !== 'admin') {
+                        showNotification("Accès réservé aux administrateurs", "warning");
+                        return;
+                    }
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    data.timestamp = new Date().toISOString();
+                    data.id = Date.now();
+                    
+                    const gpsCoords = document.getElementById('carteGpsCoordinates').value;
+                    if (gpsCoords) { try { data.gps = JSON.parse(gpsCoords); } catch(e) {} }
+                    data.baptized = document.getElementById('carteBaptized').value;
+                    data.group = document.getElementById('carteGroup').value;
+                    
+                    cartes.push(data);
+                    localStorage.setItem('cartes', JSON.stringify(cartes));
+                    
+                    updateCarteList();
+                    updateGroupStatistics();
+                    this.reset();
+                    
+                    document.getElementById('carteLatitude').value = '';
+                    document.getElementById('carteLongitude').value = '';
+                    document.getElementById('carteAccuracy').value = '';
+                    document.getElementById('carteGpsCoordinates').value = '';
+                    const status = document.getElementById('carteGpsStatusText');
+                    if (status) { status.textContent = "Non actif"; status.className = "gps-status inactive"; }
+                    showNotification("Fiche enregistrée !", "success");
+                });
+            }
+            
+            // ===== WHATSAPP =====
+            const activityWhatsAppBtn = document.getElementById('activityWhatsAppBtn');
+            if (activityWhatsAppBtn) {
+                activityWhatsAppBtn.addEventListener('click', function() {
+                    const form = document.getElementById('activityForm');
+                    if (!form) return;
+                    const data = Object.fromEntries(new FormData(form).entries());
+                    if (!data.personName || !data.theme || !data.nextVisitDate) {
+                        showNotification("Remplissez les champs obligatoires", "warning");
+                        return;
+                    }
+                    let msg = `*NOUVELLE ACTIVITÉ*\n\n👤 *Nom:* ${data.personName}\n📚 *Thème:* ${data.theme}\n📅 *Visite:* ${data.nextVisitDate} à ${data.nextVisitTime || 'Non spécifié'}`;
+                    const lat = document.getElementById('activityLatitude').value;
+                    const lon = document.getElementById('activityLongitude').value;
+                    if (lat && lon) msg += `\n📍 *GPS:* ${lat}, ${lon}\n🗺️ *Carte:* ${generateGoogleMapsLink(lat, lon)}`;
+                    window.open(`https://wa.me/+22892871605?text=${encodeURIComponent(msg)}`, '_blank');
+                    showNotification("Message WhatsApp préparé", "success");
+                });
+            }
+            
+            const carteWhatsAppBtn = document.getElementById('carteWhatsAppBtn');
+            if (carteWhatsAppBtn) {
+                carteWhatsAppBtn.addEventListener('click', function() {
+                    if (!isAuthenticated || userRole !== 'admin') {
+                        showNotification("Accès réservé aux administrateurs", "warning");
+                        return;
+                    }
+                    const form = document.getElementById('carteForm');
+                    if (!form) return;
+                    const data = Object.fromEntries(new FormData(form).entries());
+                    if (!data.carteName || !data.carteType || !data.cartePhone) {
+                        showNotification("Remplissez les champs obligatoires", "warning");
+                        return;
+                    }
+                    let msg = `*NOUVELLE FICHE*\n\n👤 *Nom:* ${data.carteName}\n🏷️ *Statut:* ${data.carteType}\n📞 *Tél:* ${data.cartePhone}`;
+                    if (data.carteCongregation) msg += `\n⛪ *Congrégation:* ${data.carteCongregation}`;
+                    if (data.carteBaptized) msg += `\n💧 *Baptisé:* ${data.carteBaptized === 'oui' ? 'Oui' : 'Non'}`;
+                    if (data.carteGroup) msg += `\n👥 *Groupe:* ${data.carteGroup}`;
+                    const lat = document.getElementById('carteLatitude').value;
+                    const lon = document.getElementById('carteLongitude').value;
+                    if (lat && lon) msg += `\n📍 *GPS:* ${lat}, ${lon}\n🗺️ *Carte:* ${generateGoogleMapsLink(lat, lon)}`;
+                    window.open(`https://wa.me/+22892871605?text=${encodeURIComponent(msg)}`, '_blank');
+                    showNotification("Message WhatsApp préparé", "success");
+                });
+            }
+            
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            if (whatsappBtn) {
+                whatsappBtn.addEventListener('click', function() {
+                    if (!isAuthenticated || userRole !== 'admin') {
+                        showNotification("Accès réservé aux administrateurs", "warning");
+                        return;
+                    }
+                    const form = document.getElementById('preachingForm');
+                    if (!form) return;
+                    const data = Object.fromEntries(new FormData(form).entries());
+                    if (!data.date || !data.location || !data.group) {
+                        showNotification("Remplissez les champs obligatoires", "warning");
+                        return;
+                    }
+                    let msg = `*PRÉDICATION*\n\n📅 *Date:* ${data.date}\n📍 *Lieu:* ${data.location}\n👥 *Groupe:* ${data.group}\n🏘️ *Quartier:* ${data.neighborhood || 'Non spécifié'}`;
+                    const lat = document.getElementById('latitude').value;
+                    const lon = document.getElementById('longitude').value;
+                    if (lat && lon) msg += `\n📍 *GPS:* ${lat}, ${lon}\n🗺️ *Carte:* ${generateGoogleMapsLink(lat, lon)}`;
+                    window.open(`https://wa.me/+22892871605?text=${encodeURIComponent(msg)}`, '_blank');
+                    showNotification("Message WhatsApp préparé", "success");
+                });
+            }
+            
+            // ===== RAPPORT =====
+            document.getElementById('previsualiserRapport').addEventListener('click', previsualiserRapport);
+            document.getElementById('envoyerRapportWhatsApp').addEventListener('click', envoyerRapportWhatsApp);
+            document.getElementById('sauvegarderRapport').addEventListener('click', sauvegarderRapport);
+            
+            // ===== RÉUNION =====
+            document.getElementById('previsualiserReunion').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                previsualiserReunion();
+            });
+            document.getElementById('envoyerReunionWhatsApp').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                envoyerReunionWhatsApp();
+            });
+            document.getElementById('sauvegarderReunion').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                sauvegarderReunion();
+            });
+            document.getElementById('testWhatsappLink').addEventListener('click', function() {
+                const link = document.getElementById('whatsappGroupLink').value;
+                if (link && link.startsWith('http')) {
+                    window.open(link, '_blank');
+                    showNotification("Ouverture du lien...", "info");
+                } else {
+                    showNotification("Lien WhatsApp invalide", "warning");
+                }
+            });
+            
+            // ===== IMPORT / EXPORT =====
+            document.getElementById('importBtn').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                document.getElementById('fileInput').click();
+            });
+            
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                if (preachings.length === 0) {
+                    showNotification("Aucune donnée à exporter", "warning");
+                    return;
+                }
+                const dataStr = JSON.stringify(preachings, null, 2);
+                const blob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `prechons_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showNotification("Données exportées !", "success");
+            });
+            
+            document.getElementById('clearActivityForm').addEventListener('click', function() {
+                document.getElementById('activityForm').reset();
+                showNotification("Formulaire effacé", "info");
+            });
+            
+            // ===== SONO =====
+            document.getElementById('addSonoBtn').addEventListener('click', function() {
+                const input = document.getElementById('sonoNameInput');
+                const name = input.value.trim();
+                if (!name) { showNotification("Entrez un nom", "warning"); return; }
+                sonoBrothers.push({ id: Date.now(), name: name });
+                localStorage.setItem('sonoBrothers', JSON.stringify(sonoBrothers));
+                input.value = '';
+                updateSonoLists();
+                showNotification(`Frère "${name}" ajouté`, "success");
+            });
+            
+            document.getElementById('addMicroBtn').addEventListener('click', function() {
+                const input = document.getElementById('microNameInput');
+                const name = input.value.trim();
+                if (!name) { showNotification("Entrez un nom", "warning"); return; }
+                microBrothers.push({ id: Date.now(), name: name });
+                localStorage.setItem('microBrothers', JSON.stringify(microBrothers));
+                input.value = '';
+                updateSonoLists();
+                showNotification(`Frère "${name}" ajouté`, "success");
+            });
+            
+            window.removeSonoBrother = function(id) {
+                if (confirm("Supprimer ce frère ?")) {
+                    sonoBrothers = sonoBrothers.filter(b => b.id !== id);
+                    localStorage.setItem('sonoBrothers', JSON.stringify(sonoBrothers));
+                    updateSonoLists();
+                    showNotification("Frère supprimé", "info");
+                }
+            };
+            
+            window.removeMicroBrother = function(id) {
+                if (confirm("Supprimer ce frère ?")) {
+                    microBrothers = microBrothers.filter(b => b.id !== id);
+                    localStorage.setItem('microBrothers', JSON.stringify(microBrothers));
+                    updateSonoLists();
+                    showNotification("Frère supprimé", "info");
+                }
+            };
+            
+            document.getElementById('testSonoWhatsappLink').addEventListener('click', function() {
+                const link = document.getElementById('sonoWhatsappGroup').value;
+                if (link && link.startsWith('http')) {
+                    window.open(link, '_blank');
+                    showNotification("Ouverture du lien...", "info");
+                } else {
+                    showNotification("Lien WhatsApp invalide", "warning");
+                }
+            });
+            
+            document.getElementById('previsualiserSono').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                previsualiserSono();
+            });
+            
+            document.getElementById('envoyerSonoWhatsApp').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                envoyerSonoWhatsApp();
+            });
+            
+            document.getElementById('sauvegarderSono').addEventListener('click', function() {
+                if (!isAuthenticated || userRole !== 'admin') {
+                    showNotification("Accès réservé aux administrateurs", "warning");
+                    return;
+                }
+                sauvegarderSono();
+            });
+        }
+        
+        // ===========================================
+        // FONCTIONS DE MISE À JOUR
+        // ===========================================
+        
+        function updatePreachingList() {
+            const list = document.getElementById('preachingList');
+            if (!list) return;
+            if (preachings.length === 0) {
+                list.innerHTML = `<div class="empty-list"><i class="fas fa-calendar-times"></i><h3>Aucune prédication</h3><p>Ajoutez une prédication</p></div>`;
+                return;
+            }
+            const sorted = [...preachings].sort((a, b) => new Date(b.date) - new Date(a.date));
+            list.innerHTML = sorted.map(p => `
+                <div class="list-item">
+                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+                        <div style="font-weight:bold;color:#1a472a;"><i class="fas fa-calendar-alt"></i> ${p.date || 'Non spécifiée'}</div>
+                        <div style="color:#64748b;"><i class="fas fa-map-marker-alt"></i> ${p.location || 'Non spécifié'}</div>
+                    </div>
+                    <div><strong>Quartier:</strong> ${p.neighborhood || 'Non spécifié'}</div>
+                    <div style="display:inline-block;background:#e2e8f0;padding:2px 10px;border-radius:12px;font-size:0.8rem;margin-top:4px;">
+                        <i class="fas fa-users"></i> ${p.group || 'Non spécifié'}
+                    </div>
+                    ${p.gps ? `<div style="margin-top:8px;padding:8px;background:#e8f5e9;border-radius:6px;font-size:0.85rem;">
+                        <div style="color:#1a472a;font-weight:bold;"><i class="fas fa-map-marker-alt"></i> GPS</div>
+                        <div style="font-size:0.8rem;">Lat: ${p.gps.latitude ? p.gps.latitude.toFixed(6) : 'N/A'}, Lon: ${p.gps.longitude ? p.gps.longitude.toFixed(6) : 'N/A'}</div>
+                    </div>` : ''}
+                    ${p.preaching ? `<div style="margin-top:8px;padding:8px;background:#f8f9fa;border-radius:6px;font-size:0.9rem;">${p.preaching}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function updateActivityList() {
+            const list = document.getElementById('activityList');
+            if (!list) return;
+            if (activities.length === 0) {
+                list.innerHTML = `<div class="empty-list"><i class="fas fa-book-open"></i><h3>Cahier vide</h3><p>Ajoutez votre première entrée</p></div>`;
+                return;
+            }
+            const sorted = [...activities].sort((a, b) => new Date(a.nextVisitDate) - new Date(b.nextVisitDate));
+            list.innerHTML = sorted.map(a => `
+                <div class="activity-item">
+                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+                        <div style="font-weight:bold;color:#1a472a;font-size:1rem;"><i class="fas fa-user"></i> ${a.personName || 'Non spécifié'}</div>
+                        <div style="color:#64748b;font-size:0.8rem;background:#e2e8f0;padding:2px 10px;border-radius:12px;">
+                            <i class="fas fa-calendar"></i> ${a.nextVisitDate || 'Non spécifiée'}
+                        </div>
+                    </div>
+                    <div style="color:#1a472a;font-weight:600;"><i class="fas fa-book-open"></i> ${a.theme || 'Non spécifié'}</div>
+                    <div style="color:#2e7d32;margin-top:6px;"><i class="fas fa-clock"></i> ${a.nextVisitDate || 'Non spécifiée'} à ${a.nextVisitTime || 'Non spécifiée'}</div>
+                    ${a.gps ? `<div style="margin-top:8px;padding:6px;background:#e3f2fd;border-radius:4px;font-size:0.8rem;">
+                        <div style="color:#1976d2;font-weight:bold;"><i class="fas fa-map-marker-alt"></i> GPS</div>
+                        <div>${a.gps.latitude ? a.gps.latitude.toFixed(6) : 'N/A'}, ${a.gps.longitude ? a.gps.longitude.toFixed(6) : 'N/A'}</div>
+                    </div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function updateCarteList() {
+            const list = document.getElementById('carteList');
+            if (!list) return;
+            if (cartes.length === 0) {
+                list.innerHTML = `<div class="empty-list"><i class="fas fa-map"></i><h3>Aucune fiche</h3><p>Ajoutez votre première fiche</p></div>`;
+                return;
+            }
+            const sorted = [...cartes].sort((a, b) => (a.carteName || '').localeCompare(b.carteName || ''));
+            list.innerHTML = sorted.map(c => `
+                <div class="carte-item">
+                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+                        <div style="font-weight:bold;color:#1a472a;font-size:1.05rem;"><i class="fas fa-user"></i> ${c.carteName || 'Sans nom'}</div>
+                        <div style="color:#64748b;font-size:0.8rem;background:#e2e8f0;padding:2px 10px;border-radius:12px;">
+                            <i class="fas fa-users"></i> ${c.carteType || 'Non spécifié'}
+                        </div>
+                    </div>
+                    <div style="color:#2e7d32;margin:4px 0;"><i class="fas fa-phone"></i> <strong>Tél:</strong> ${c.cartePhone || 'Non spécifié'}</div>
+                    ${c.carteCongregation ? `<div style="color:#1976d2;font-weight:600;"><span class="jw-congregation-icon">JW</span> ${c.carteCongregation}</div>` : ''}
+                    ${c.baptized ? `<div style="color:${c.baptized === 'oui' ? '#4caf50' : '#ff9800'};margin:4px 0;"><i class="fas fa-droplet"></i> <strong>Baptisé:</strong> ${c.baptized === 'oui' ? 'Oui' : 'Non'}</div>` : ''}
+                    ${c.group ? `<div style="color:#64748b;margin:4px 0;"><i class="fas fa-users"></i> <strong>Groupe:</strong> ${c.group}</div>` : ''}
+                    ${c.gps ? `<div style="margin-top:8px;padding:6px;background:#f3e5f5;border-radius:4px;font-size:0.8rem;">
+                        <div style="color:#7b1fa2;font-weight:bold;"><i class="fas fa-map-marker-alt"></i> GPS</div>
+                        <div>${c.gps.latitude ? c.gps.latitude.toFixed(6) : 'N/A'}, ${c.gps.longitude ? c.gps.longitude.toFixed(6) : 'N/A'}</div>
+                    </div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function updateStatistics() {
+            const totalP = document.getElementById('totalPreachings');
+            if (totalP) totalP.textContent = preachings.length;
+            const activeG = document.getElementById('activeGroups');
+            if (activeG) {
+                const groups = [...new Set(preachings.map(p => p.group))].filter(g => g);
+                activeG.textContent = groups.length;
+            }
+            const diffL = document.getElementById('differentLocations');
+            if (diffL) {
+                const locs = [...new Set(preachings.map(p => p.location))].filter(l => l);
+                diffL.textContent = locs.length;
+            }
+            const totalA = document.getElementById('totalActivities');
+            if (totalA) totalA.textContent = activities.length;
+        }
+        
+        function updateGroupStatistics() {
+            const container = document.getElementById('groupStatsContainer');
+            if (!container) return;
+            const groups = ['Groupe 1', 'Groupe 2', 'Groupe 3', 'Groupe 4', 'Groupe 5'];
+            const publishers = cartes.filter(c => c.carteName && c.carteType);
+            
+            const totalP = publishers.length;
+            const baptized = publishers.filter(p => p.baptized === 'oui').length;
+            const unbaptized = publishers.filter(p => p.baptized === 'non').length;
+            const withGps = publishers.filter(p => p.gps && p.gps.latitude && p.gps.longitude).length;
+            
+            document.getElementById('totalPublishers').textContent = totalP;
+            document.getElementById('totalBaptized').textContent = baptized;
+            document.getElementById('totalUnbaptized').textContent = unbaptized;
+            document.getElementById('totalWithGps').textContent = withGps;
+            
+            if (totalP === 0) {
+                container.innerHTML = `<div class="empty-list"><i class="fas fa-users"></i><h3>Aucun proclamateur</h3><p>Ajoutez des fiches dans l'onglet CARTE</p></div>`;
+                return;
+            }
+            
+            let html = '';
+            groups.forEach(groupName => {
+                const gp = publishers.filter(p => p.group === groupName);
+                const gBaptized = gp.filter(p => p.baptized === 'oui').length;
+                const gUnbaptized = gp.filter(p => p.baptized === 'non').length;
+                const gWithGps = gp.filter(p => p.gps && p.gps.latitude && p.gps.longitude).length;
+                
+                html += `<div class="group-stat-card">
+                    <div class="group-stat-header">
+                        <h3><i class="fas fa-users" style="color:#d4a017;"></i> ${groupName} <span style="font-size:0.8rem;font-weight:normal;opacity:0.8;">(${gp.length} proclamateurs)</span></h3>
+                        <div class="group-counts">
+                            <span class="baptized-count"><i class="fas fa-droplet"></i> Baptisés: ${gBaptized}</span>
+                            <span class="unbaptized-count"><i class="fas fa-droplet"></i> Non baptisés: ${gUnbaptized}</span>
+                            <span class="total-count"><i class="fas fa-map-marker-alt"></i> GPS: ${gWithGps}</span>
+                        </div>
+                    </div>
+                    <div class="group-stat-body">`;
+                
+                if (gp.length === 0) {
+                    html += `<div class="empty-group"><i class="fas fa-user-slash"></i><p>Aucun proclamateur</p></div>`;
+                } else {
+                    gp.forEach(p => {
+                        const statusClass = p.baptized === 'oui' ? 'status-baptized' : 'status-unbaptized';
+                        const statusText = p.baptized === 'oui' ? 'Baptisé' : 'Non baptisé';
+                        const gpsInfo = p.gps && p.gps.latitude && p.gps.longitude 
+                            ? `<a href="https://www.google.com/maps?q=${p.gps.latitude},${p.gps.longitude}" target="_blank" title="Voir sur Google Maps">
+                                <i class="fas fa-map-marker-alt"></i> ${p.gps.latitude.toFixed(4)}, ${p.gps.longitude.toFixed(4)}
+                               </a>`
+                            : `<span class="no-gps"><i class="fas fa-map-marker-alt"></i> Non disponible</span>`;
+                        html += `<div class="publisher-item">
+                            <div class="publisher-info">
+                                <span class="publisher-name">${p.carteName}</span>
+                                <span class="publisher-status ${statusClass}">${statusText}</span>
+                                <span class="publisher-type">${p.carteType || 'Non spécifié'}</span>
+                            </div>
+                            <div class="publisher-gps">${gpsInfo}</div>
+                        </div>`;
+                    });
+                }
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+        
+        function updateNotesList() {
+            const list = document.getElementById('notesList');
+            if (!list) return;
+            if (preparationNotes.length === 0) {
+                list.innerHTML = `<div class="empty-list"><i class="fas fa-sticky-note"></i><h3>Aucune note</h3><p>Commencez à préparer votre prochaine visite</p></div>`;
+                return;
+            }
+            const sorted = [...preparationNotes].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            list.innerHTML = sorted.map(n => `
+                <div class="note-item">
+                    <div class="note-header">
+                        <div><strong><i class="fas fa-calendar-alt"></i> ${n.noteDate}</strong> <span style="margin-left:10px;color:#1a472a;"><i class="fas fa-book-open"></i> ${n.noteSubject}</span></div>
+                        <button class="btn btn-danger btn-sm delete-note" data-id="${n.id}" style="padding:2px 8px;font-size:0.7rem;border:none;border-radius:4px;cursor:pointer;background:#d32f2f;color:white;">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <div class="note-content">${n.noteContent}</div>
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.delete-note').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    if (confirm("Supprimer cette note ?")) {
+                        preparationNotes = preparationNotes.filter(n => n.id !== id);
+                        localStorage.setItem('preparationNotes', JSON.stringify(preparationNotes));
+                        updateNotesList();
+                        showNotification("Note supprimée", "info");
+                    }
+                });
+            });
+        }
+        
+        function updateSonoLists() {
+            const sonoList = document.getElementById('sonoList');
+            if (sonoBrothers.length === 0) {
+                sonoList.innerHTML = `<div class="empty-list" style="padding:10px;"><i class="fas fa-users"></i><p>Aucun frère</p></div>`;
+            } else {
+                sonoList.innerHTML = sonoBrothers.map(b => `
+                    <div class="sono-item">
+                        <span class="sono-name"><i class="fas fa-user"></i> ${b.name}</span>
+                        <div class="sono-actions">
+                            <button class="btn-danger-xs" onclick="removeSonoBrother(${b.id})"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            const microList = document.getElementById('microList');
+            if (microBrothers.length === 0) {
+                microList.innerHTML = `<div class="empty-list" style="padding:10px;"><i class="fas fa-users"></i><p>Aucun frère</p></div>`;
+            } else {
+                microList.innerHTML = microBrothers.map(b => `
+                    <div class="sono-item">
+                        <span class="sono-name"><i class="fas fa-user"></i> ${b.name}</span>
+                        <div class="sono-actions">
+                            <button class="btn-danger-xs" onclick="removeMicroBrother(${b.id})"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            updateSonoPlanning();
+        }
+        
+        function updateSonoPlanning() {
+            const sonoNames = sonoBrothers.map(b => b.name).join(', ') || 'Aucun';
+            const microNames = microBrothers.map(b => b.name).join(', ') || 'Aucun';
+            document.getElementById('sonoPlanningSono').textContent = sonoNames;
+            document.getElementById('sonoPlanningMicro').textContent = microNames;
+            
+            const date = document.getElementById('sonoReunionDate').value || 'Non définie';
+            const time = document.getElementById('sonoReunionTime').value || 'Non définie';
+            const type = document.getElementById('sonoReunionType').value || 'Non défini';
+            const loc = document.getElementById('sonoReunionLocation').value || 'Non défini';
+            
+            document.getElementById('sonoPlanningDate').textContent = date;
+            document.getElementById('sonoPlanningTime').textContent = time;
+            document.getElementById('sonoPlanningType').textContent = type;
+            document.getElementById('sonoPlanningLocation').textContent = loc;
+        }
+        
+        document.getElementById('sonoReunionDate').addEventListener('change', updateSonoPlanning);
+        document.getElementById('sonoReunionTime').addEventListener('change', updateSonoPlanning);
+        document.getElementById('sonoReunionType').addEventListener('change', updateSonoPlanning);
+        document.getElementById('sonoReunionLocation').addEventListener('input', updateSonoPlanning);
+        
+        // ===========================================
+        // RAPPORT
+        // ===========================================
+        
+        function previsualiserRapport() {
+            const form = document.getElementById('rapportForm');
+            if (!form) return;
+            const data = Object.fromEntries(new FormData(form).entries());
+            if (!data.rapportNom || !data.rapportPrenoms || !data.rapportCongregation || !data.rapportVille || !data.rapportGroupe || !data.rapportMois || !data.aPreche) {
+                showNotification("Remplissez tous les champs obligatoires", "warning");
+                return;
+            }
+            
+            const [annee, moisNum] = data.rapportMois.split('-');
+            const moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+            const moisFormate = `${moisNoms[parseInt(moisNum)-1]} ${annee}`;
+            
+            const types = [];
+            if (data.typePresentoir) types.push("Présentoir");
+            if (data.typeFormelle) types.push("Formelle");
+            if (data.typeInformelle) types.push("Informelle");
+            if (data.typePublique) types.push("Publique");
+            if (data.typeLieuPublic) types.push("Visite lieu public");
+            if (data.typePrison) types.push("Visite prison");
+            if (data.typeAdministratif) types.push("Lieux administratifs");
+            
+            let html = `<div style="font-family:Arial,sans-serif;">
+                <h2 style="color:#1a472a;text-align:center;margin-bottom:15px;"><i class="fas fa-file-alt"></i> RAPPORT D'ACTIVITÉ</h2>
+                <div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">INFORMATIONS</h3>
+                    <p><strong>Nom :</strong> ${data.rapportNom}</p>
+                    <p><strong>Prénoms :</strong> ${data.rapportPrenoms}</p>
+                    <p><strong>Congrégation :</strong> ${data.rapportCongregation}</p>
+                    <p><strong>Ville :</strong> ${data.rapportVille}</p>
+                    <p><strong>Groupe :</strong> ${data.rapportGroupe}</p>
+                    <p><strong>Mois :</strong> ${moisFormate}</p>
+                </div>
+                <div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">ACTIVITÉS</h3>
+                    <p><strong>A prêché :</strong> ${data.aPreche === 'oui' ? '✅ OUI' : '❌ NON'}</p>
+                    ${types.length > 0 ? `<p><strong>Types :</strong><ul>${types.map(t => `<li>${t}</li>`).join('')}</ul>` : '<p><strong>Aucun type sélectionné</strong></p>'}
+                </div>
+                <div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">ÉTUDES</h3>
+                    <p><strong>Nouvelles :</strong> ${data.etudesNouvelles || 0}</p>
+                    <p><strong>Anciennes :</strong> ${data.etudesAnciennes || 0}</p>
+                    <p><strong>Total :</strong> ${(parseInt(data.etudesNouvelles)||0) + (parseInt(data.etudesAnciennes)||0)}</p>
+                </div>
+                ${data.rapportObservations ? `<div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">OBSERVATIONS</h3>
+                    <p>${data.rapportObservations.replace(/\n/g, '<br>')}</p>
+                </div>` : ''}
+            </div>`;
+            
+            document.getElementById('rapportPreview').innerHTML = html;
+            document.getElementById('previsualisationRapport').style.display = 'block';
+            document.getElementById('previsualisationRapport').scrollIntoView({ behavior: 'smooth' });
+            showNotification("Rapport prévisualisé", "success");
+        }
+        
+        function envoyerRapportWhatsApp() {
+            const form = document.getElementById('rapportForm');
+            if (!form) return;
+            const data = Object.fromEntries(new FormData(form).entries());
+            if (!data.rapportNom || !data.rapportPrenoms || !data.rapportCongregation || !data.rapportVille || !data.rapportGroupe || !data.rapportMois || !data.aPreche) {
+                showNotification("Remplissez tous les champs obligatoires", "warning");
+                return;
+            }
+            
+            const [annee, moisNum] = data.rapportMois.split('-');
+            const moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+            const moisFormate = `${moisNoms[parseInt(moisNum)-1]} ${annee}`;
+            
+            const types = [];
+            if (data.typePresentoir) types.push("Présentoir");
+            if (data.typeFormelle) types.push("Formelle");
+            if (data.typeInformelle) types.push("Informelle");
+            if (data.typePublique) types.push("Publique");
+            if (data.typeLieuPublic) types.push("Visite lieu public");
+            if (data.typePrison) types.push("Visite prison");
+            if (data.typeAdministratif) types.push("Lieux administratifs");
+            
+            let msg = `*📋 RAPPORT D'ACTIVITÉ*\n\n`;
+            msg += `*📌 INFORMATIONS*\n👤 *Nom:* ${data.rapportNom}\n👥 *Prénoms:* ${data.rapportPrenoms}\n⛪ *Congrégation:* ${data.rapportCongregation}\n🏙️ *Ville:* ${data.rapportVille}\n👨‍👩‍👧‍👦 *Groupe:* ${data.rapportGroupe}\n📅 *Mois:* ${moisFormate}\n\n`;
+            msg += `*📢 ACTIVITÉS*\n🎯 *A prêché:* ${data.aPreche === 'oui' ? '✅ OUI' : '❌ NON'}\n`;
+            if (types.length > 0) { msg += `📝 *Types:*\n${types.map(t => `   • ${t}`).join('\n')}\n`; }
+            msg += `\n*📖 ÉTUDES*\n⭐ *Nouvelles:* ${data.etudesNouvelles || 0}\n📚 *Anciennes:* ${data.etudesAnciennes || 0}\n🔢 *Total:* ${(parseInt(data.etudesNouvelles)||0) + (parseInt(data.etudesAnciennes)||0)}\n`;
+            if (data.rapportObservations) msg += `\n*📝 OBSERVATIONS*\n${data.rapportObservations}\n`;
+            msg += `\n_Rapport généré via "Prêchons"_`;
+            
+            let phone = (data.whatsappNumber || "+22892871605").replace(/\s+/g, '').replace(/^\+/, '');
+            if (!phone.match(/^\d{9,15}$/)) { showNotification("Numéro WhatsApp invalide", "error"); return; }
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            showNotification("Rapport envoyé !", "success");
+        }
+        
+        function sauvegarderRapport() {
+            const form = document.getElementById('rapportForm');
+            if (!form) return;
+            const data = Object.fromEntries(new FormData(form).entries());
+            if (!data.rapportNom || !data.rapportPrenoms || !data.rapportCongregation || !data.rapportVille || !data.rapportGroupe || !data.rapportMois || !data.aPreche) {
+                showNotification("Remplissez tous les champs obligatoires", "warning");
+                return;
+            }
+            data.timestamp = new Date().toISOString();
+            data.id = Date.now();
+            rapports.push(data);
+            localStorage.setItem('rapports', JSON.stringify(rapports));
+            form.reset();
+            document.getElementById('rapportMois').value = new Date().toISOString().slice(0, 7);
+            document.getElementById('whatsappNumber').value = "+22892871605";
+            showNotification("Rapport sauvegardé !", "success");
+        }
+        
+        // ===========================================
+        // RÉUNION
+        // ===========================================
+        
+        function previsualiserReunion() {
+            const form = document.getElementById('reunionForm');
+            if (!form) return;
+            const data = Object.fromEntries(new FormData(form).entries());
+            
+            let html = `<div style="font-family:Arial,sans-serif;">
+                <h2 style="color:#1a472a;text-align:center;margin-bottom:15px;"><span class="jw-icon-badge" style="display:inline-flex;align-items:center;justify-content:center;background-color:#d4a017;color:white;width:22px;height:22px;border-radius:50%;font-size:0.6rem;font-weight:bold;vertical-align:middle;">JW</span> PROGRAMME DES RÉUNIONS</h2>`;
+            
+            if (data.discoursBibliqueTheme || data.tourDeGardeTheme) {
+                html += `<div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">RÉUNIONS PRINCIPALES</h3>`;
+                if (data.discoursBibliqueTheme) html += `<p><strong>Discours :</strong> ${data.discoursBibliqueTheme}</p>`;
+                if (data.tourDeGardeTheme) html += `<p><strong>Tour de Garde :</strong> ${data.tourDeGardeTheme}</p>`;
+                html += `</div>`;
+            }
+            
+            if (data.semaineSpatialeDate || data.surveillantVisite) {
+                html += `<div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">SEMAINE SPÉCIALE</h3>`;
+                if (data.semaineSpatialeDate) html += `<p><strong>Date :</strong> ${new Date(data.semaineSpatialeDate).toLocaleDateString('fr-FR')}</p>`;
+                if (data.surveillantVisite) html += `<p><strong>Surveillant :</strong> ${data.surveillantVisite}</p>`;
+                if (data.debutReunionDate && data.debutReunionHeure) {
+                    html += `<p><strong>Début :</strong> ${new Date(data.debutReunionDate).toLocaleDateString('fr-FR')} à ${data.debutReunionHeure}</p>`;
+                }
+                if (data.periodesRendezVous) html += `<p><strong>Rendez-vous :</strong><br><div style="white-space:pre-line;background:white;padding:8px;border-radius:4px;margin-top:4px;">${data.periodesRendezVous}</div></p>`;
+                html += `</div>`;
+            }
+            
+            if (data.assembleeTheme) {
+                html += `<div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">ASSEMBLÉE</h3>
+                    <p><strong>Thème :</strong> ${data.assembleeTheme}</p>`;
+                if (data.assembleeType) html += `<p><strong>Type :</strong> ${data.assembleeType}</p>`;
+                if (data.assembleeLieu) html += `<p><strong>Lieu :</strong> ${data.assembleeLieu}</p>`;
+                if (data.assembleeHeureDebut) html += `<p><strong>Heure début :</strong> ${data.assembleeHeureDebut}</p>`;
+                html += `</div>`;
+            }
+            
+            const p1 = [];
+            if (data.joyauxParole) p1.push({t:"Joyaux de la Parole", v:data.joyauxParole});
+            if (data.perlesSpirituelles) p1.push({t:"Perles Spirituelles", v:data.perlesSpirituelles});
+            if (data.lectureBible) p1.push({t:"Lecture de la Bible", v:data.lectureBible});
+            if (data.appliqueMinistry) p1.push({t:"Applique-toi au ministère", v:data.appliqueMinistry});
+            if (data.sujet4) p1.push({t:"Sujet 4", v:data.sujet4});
+            if (data.sujet5) p1.push({t:"Sujet 5", v:data.sujet5});
+            if (data.sujet6) p1.push({t:"Sujet 6", v:data.sujet6});
+            if (p1.length > 0) {
+                html += `<div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">ÉTUDE - PARTIE 1</h3>${p1.map(p => `<p><strong>${p.t} :</strong> ${p.v}</p>`).join('')}</div>`;
+            }
+            
+            const p2 = [];
+            if (data.vieChretienne) p2.push({t:"Vie Chrétienne", v:data.vieChretienne});
+            if (data.etudeBibliqueAssemblee) p2.push({t:"Étude Biblique", v:data.etudeBibliqueAssemblee});
+            if (p2.length > 0) {
+                html += `<div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;">ÉTUDE - PARTIE 2</h3>${p2.map(p => `<p><strong>${p.t} :</strong> ${p.v}</p>`).join('')}</div>`;
+            }
+            
+            html += `</div>`;
+            document.getElementById('reunionPreview').innerHTML = html;
+            document.getElementById('previsualisationReunion').style.display = 'block';
+            document.getElementById('previsualisationReunion').scrollIntoView({ behavior: 'smooth' });
+            showNotification("Programme prévisualisé", "success");
+        }
+        
+        function envoyerReunionWhatsApp() {
+            const form = document.getElementById('reunionForm');
+            if (!form) return;
+            const data = Object.fromEntries(new FormData(form).entries());
+            
+            let msg = `*📅 PROGRAMME DES RÉUNIONS*\n\n`;
+            if (data.discoursBibliqueTheme || data.tourDeGardeTheme) {
+                msg += `*⛪ RÉUNIONS PRINCIPALES*\n`;
+                if (data.discoursBibliqueTheme) msg += `📖 *Discours :* ${data.discoursBibliqueTheme}\n`;
+                if (data.tourDeGardeTheme) msg += `🏰 *Tour de Garde :* ${data.tourDeGardeTheme}\n`;
+                msg += `\n`;
+            }
+            if (data.semaineSpatialeDate || data.surveillantVisite) {
+                msg += `*📆 SEMAINE SPÉCIALE*\n`;
+                if (data.semaineSpatialeDate) msg += `📅 *Date :* ${new Date(data.semaineSpatialeDate).toLocaleDateString('fr-FR')}\n`;
+                if (data.surveillantVisite) msg += `👨‍💼 *Surveillant :* ${data.surveillantVisite}\n`;
+                if (data.debutReunionDate && data.debutReunionHeure) {
+                    msg += `⏰ *Début :* ${new Date(data.debutReunionDate).toLocaleDateString('fr-FR')} à ${data.debutReunionHeure}\n`;
+                }
+                if (data.periodesRendezVous) msg += `📍 *Rendez-vous :*\n${data.periodesRendezVous}\n`;
+                msg += `\n`;
+            }
+            if (data.assembleeTheme) {
+                msg += `*🙏 ASSEMBLÉE*\n✨ *Thème :* ${data.assembleeTheme}\n`;
+                if (data.assembleeType) msg += `📋 *Type :* ${data.assembleeType}\n`;
+                if (data.assembleeLieu) msg += `🏛️ *Lieu :* ${data.assembleeLieu}\n`;
+                if (data.assembleeHeureDebut) msg += `⏰ *Heure début :* ${data.assembleeHeureDebut}\n`;
+                msg += `\n`;
+            }
+            const p1 = [];
+            if (data.joyauxParole) p1.push({t:"Joyaux de la Parole", v:data.joyauxParole});
+            if (data.perlesSpirituelles) p1.push({t:"Perles Spirituelles", v:data.perlesSpirituelles});
+            if (data.lectureBible) p1.push({t:"Lecture de la Bible", v:data.lectureBible});
+            if (data.appliqueMinistry) p1.push({t:"Applique-toi", v:data.appliqueMinistry});
+            if (data.sujet4) p1.push({t:"Sujet 4", v:data.sujet4});
+            if (data.sujet5) p1.push({t:"Sujet 5", v:data.sujet5});
+            if (data.sujet6) p1.push({t:"Sujet 6", v:data.sujet6});
+            if (p1.length > 0) {
+                msg += `*📚 PARTIE 1*\n${p1.map(p => `• *${p.t} :* ${p.v}\n`).join('')}\n`;
+            }
+            const p2 = [];
+            if (data.vieChretienne) p2.push({t:"Vie Chrétienne", v:data.vieChretienne});
+            if (data.etudeBibliqueAssemblee) p2.push({t:"Étude Biblique", v:data.etudeBibliqueAssemblee});
+            if (p2.length > 0) {
+                msg += `*❤️ PARTIE 2*\n${p2.map(p => `• *${p.t} :* ${p.v}\n`).join('')}\n`;
+            }
+            if (data.messageComplementaire) msg += `*💬 MESSAGE*\n${data.messageComplementaire}\n\n`;
+            msg += `_Programme généré via "Prêchons"_`;
+            
+            const link = data.whatsappGroupLink;
+            if (link && link.startsWith('https://chat.whatsapp.com/')) {
+                window.open(link, '_blank');
+                navigator.clipboard.writeText(msg).then(() => showNotification("Message copié !", "success"))
+                    .catch(() => showNotification("Lien ouvert !", "info"));
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                showNotification("Message WhatsApp préparé", "success");
+            }
+        }
+        
+        function sauvegarderReunion() {
+            const form = document.getElementById('reunionForm');
+            if (!form) return;
+            const data = Object.fromEntries(new FormData(form).entries());
+            data.timestamp = new Date().toISOString();
+            data.id = Date.now();
+            reunions.push(data);
+            localStorage.setItem('reunions', JSON.stringify(reunions));
+            showNotification("Programme sauvegardé !", "success");
+        }
+        
+        // ===========================================
+        // SONO
+        // ===========================================
+        
+        function previsualiserSono() {
+            const date = document.getElementById('sonoReunionDate').value || 'Non définie';
+            const time = document.getElementById('sonoReunionTime').value || 'Non définie';
+            const type = document.getElementById('sonoReunionType').value || 'Non défini';
+            const loc = document.getElementById('sonoReunionLocation').value || 'Non défini';
+            const sonoNames = sonoBrothers.map(b => b.name).join(', ') || 'Aucun';
+            const microNames = microBrothers.map(b => b.name).join(', ') || 'Aucun';
+            
+            let html = `<div style="font-family:Arial,sans-serif;">
+                <h2 style="color:#1a472a;text-align:center;margin-bottom:15px;"><i class="fas fa-microphone"></i> PLANNING SONORISATION</h2>
+                <div style="background:#f8f9fa;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;"><i class="fas fa-calendar-alt"></i> INFORMATIONS</h3>
+                    <p><strong>Date :</strong> ${date}</p>
+                    <p><strong>Heure :</strong> ${time}</p>
+                    <p><strong>Type :</strong> ${type}</p>
+                    <p><strong>Lieu :</strong> ${loc}</p>
+                </div>
+                <div style="background:#e8f5e9;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#2e7d32;margin-bottom:6px;"><i class="fas fa-volume-up"></i> SONORISATION</h3>
+                    <p><strong>Frères :</strong> ${sonoNames}</p>
+                </div>
+                <div style="background:#e3f2fd;padding:12px;border-radius:6px;margin-bottom:10px;">
+                    <h3 style="color:#1976d2;margin-bottom:6px;"><i class="fas fa-microphone-alt"></i> BALADAGE MICROS</h3>
+                    <p><strong>Frères :</strong> ${microNames}</p>
+                </div>
+                <div style="background:#f3e5f5;padding:12px;border-radius:6px;text-align:center;">
+                    <p style="color:#7b1fa2;font-weight:bold;"><i class="fas fa-info-circle"></i> Généré via "Prêchons"</p>
+                </div>
+            </div>`;
+            
+            document.getElementById('sonoPreview').innerHTML = html;
+            document.getElementById('previsualisationSono').style.display = 'block';
+            document.getElementById('previsualisationSono').scrollIntoView({ behavior: 'smooth' });
+            showNotification("Planning prévisualisé", "success");
+        }
+        
+        function envoyerSonoWhatsApp() {
+            const date = document.getElementById('sonoReunionDate').value || 'Non définie';
+            const time = document.getElementById('sonoReunionTime').value || 'Non définie';
+            const type = document.getElementById('sonoReunionType').value || 'Non défini';
+            const loc = document.getElementById('sonoReunionLocation').value || 'Non défini';
+            const link = document.getElementById('sonoWhatsappGroup').value;
+            const sonoNames = sonoBrothers.map(b => b.name).join(', ') || 'Aucun';
+            const microNames = microBrothers.map(b => b.name).join(', ') || 'Aucun';
+            
+            let msg = `*📋 PLANNING SONORISATION*\n\n`;
+            msg += `*📅 INFOS RÉUNION*\n📆 *Date :* ${date}\n⏰ *Heure :* ${time}\n🏷️ *Type :* ${type}\n📍 *Lieu :* ${loc}\n\n`;
+            msg += `*🎤 SONORISATION*\n👤 *Frères :*\n   • ${sonoNames.replace(/, /g, '\n   • ')}\n\n`;
+            msg += `*🎙️ BALADAGE MICROS*\n👤 *Frères :*\n   • ${microNames.replace(/, /g, '\n   • ')}\n\n`;
+            msg += `_Planning généré via "Prêchons"_`;
+            
+            if (link && link.startsWith('https://chat.whatsapp.com/')) {
+                window.open(link, '_blank');
+                navigator.clipboard.writeText(msg).then(() => showNotification("Message copié !", "success"))
+                    .catch(() => showNotification("Lien ouvert !", "info"));
+            } else {
+                window.open(`https://wa.me/+22892871605?text=${encodeURIComponent(msg)}`, '_blank');
+                showNotification("Message WhatsApp préparé", "success");
+            }
+        }
+        
+        function sauvegarderSono() {
+            const date = document.getElementById('sonoReunionDate').value;
+            const time = document.getElementById('sonoReunionTime').value;
+            const type = document.getElementById('sonoReunionType').value;
+            const loc = document.getElementById('sonoReunionLocation').value;
+            const link = document.getElementById('sonoWhatsappGroup').value;
+            
+            const planning = {
+                id: Date.now(),
+                date, time, type, location: loc,
+                sonoBrothers: [...sonoBrothers],
+                microBrothers: [...microBrothers],
+                whatsappLink: link,
+                timestamp: new Date().toISOString()
+            };
+            sonoPlannings.push(planning);
+            localStorage.setItem('sonoPlannings', JSON.stringify(sonoPlannings));
+            showNotification("Planning sauvegardé !", "success");
+        }
+        
+        // ===========================================
+        // NOTIFICATIONS
+        // ===========================================
+        
+        function showNotification(message, type = "info") {
+            const notification = document.getElementById('notification');
+            if (!notification) return;
+            notification.textContent = message;
+            const colors = { success: "#388e3c", error: "#d32f2f", warning: "#f57c00", info: "#1976d2" };
+            notification.style.backgroundColor = colors[type] || colors.info;
+            notification.style.display = "block";
+            clearTimeout(notification._timeout);
+            notification._timeout = setTimeout(() => { notification.style.display = "none"; }, 4000);
+        }
+        
+        // ===========================================
+        // DÉMARRAGE
+        // ===========================================
+        
+        document.addEventListener('DOMContentLoaded', checkAuthentication);
+    </script>
+</body>
+</html>g="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
